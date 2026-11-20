@@ -1,0 +1,5 @@
+# Finales de línea correctos en cada sistema
+*.sh  text eol=lf
+*.bat text eol=crlf
+*.js  text eol=lf
+*.md  text eol=lf

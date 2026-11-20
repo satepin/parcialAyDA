@@ -5,7 +5,26 @@ Resuelto en JavaScript (Node.js), un ejercicio por subcarpeta.
 
 ## Cómo ejecutar
 
-Requiere Node.js (sin dependencias externas).
+Requiere **Node.js 17 o superior** (sin dependencias externas).
+
+**Con doble clic (lanzadores):**
+
+| Sistema | Archivo | Cómo abrirlo |
+|---------|---------|--------------|
+| Windows | `ejecutar.bat` | Doble clic (o `ejecutar.bat` desde cmd / PowerShell) |
+| Linux Mint | `ejecutar.sh` | Doble clic → *Ejecutar en terminal* (o `./ejecutar.sh`) |
+
+Los dos se ubican en la carpeta del proyecto, verifican que Node.js esté instalado y en una
+versión compatible, abren el menú y esperan una tecla al salir para que no se cierre la ventana.
+En Windows activan UTF-8 (`chcp 65001`) para que se vean bien las tildes y las tablas.
+
+En Linux, la primera vez hay que darle permiso de ejecución:
+
+```bash
+chmod +x ejecutar.sh
+```
+
+**Desde la terminal:**
 
 ```bash
 node index.js                    # menú interactivo con todos los ejercicios
@@ -20,6 +39,9 @@ node ejercicio4/utilidad.js      # ≈ 2–3 s (procesa 1.000.000 de datos)
 ```
 parcial/
 ├── index.js              # menú: elegir ejercicio, Enter para volver, 0 para salir
+├── ejecutar.bat          # lanzador para Windows
+├── ejecutar.sh           # lanzador para Linux
+├── .gitattributes        # finales de línea: CRLF para .bat, LF para .sh
 ├── README.md
 └── ejercicio1/           # Corrector ortográfico
     ├── corrector.js      # programa principal (exporta main())
