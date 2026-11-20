@@ -1,0 +1,196 @@
+Cargando datos…
+n = 1.000.000 valores (rango -100 a 100) leídos en 209.90 ms
+Utilidad total: -39.329   días con ganancia: 496.688 (49.7 %)
+
+==============================================================================
+PARTE A — Sub-arreglo máximo (mejor período)
+==============================================================================
+
+--- 1. Mediciones (n = 1.000.000) --------------------------------------------
+  Algoritmo                      │  Complejidad  │       Tiempo  │      Comparaciones  │                Cota teórica  │  Medido / cota
+  ───────────────────────────────┼───────────────┼───────────────┼─────────────────────┼──────────────────────────────┼───────────────
+  Kadane (PD)                    │         Θ(n)  │      3.24 ms  │          2.000.000  │              2n = 2.000.000  │          1.000
+  Divide y Conquista             │   Θ(n log n)  │    127.67 ms  │         21.951.422  │        n·log₂n ≈ 19.931.569  │          1.101
+  Fuerza bruta (n=10.000)        │        Θ(n²)  │    110.73 ms  │         50.005.000  │       n(n+1)/2 = 50.005.000  │          1.000
+  Fuerza bruta (n=1e6, extrap.)  │        Θ(n²)  │  ≈ 1107.34 s  │  ≈ 500.050.000.000  │  n(n+1)/2 ≈ 500.000.500.000  │              —
+
+  Tiempos: mediana de varias corridas. Llamadas recursivas de D&C: 1.999.999 (= 2n − 1).
+  D&C / Kadane: 11.0× comparaciones y 39.4× tiempo
+  (la teoría predice ≈ log₂n / 2 = 10.0×; el tiempo crece más por el costo de la recursión).
+  Fuerza bruta en la muestra: suma 7.179 en [564, 8073] — Kadane da lo mismo: sí
+  Extrapolar Θ(n²) a un millón: ×10.000 → inviable frente a los ms de Kadane.
+
+--- 2. Salida ----------------------------------------------------------------
+  Valor máximo de utilidad: 59.335
+  Mejor período: días 121.945 a 233.209 (inclusive) → 111.265 días
+  Verificación (suma directa del rango): 59.335
+  Divide y Conquista: 59.335 en [121.945, 233.209] → mismo resultado
+
+  Utilidad acumulada S(i) = P[0]+…+P[i] — muestreada en 100 columnas (█ = mejor período: la mayor subida)
+   34897 │                     ██                                                                             
+         │                   ██▓▓█•                                                                           
+         │                  █▓▓▓▓▓ •  •                                                                       
+         │                ██▓▓▓▓▓▓  •• ••                 •                                                   
+         │                ▓▓▓▓▓▓▓▓       •   •    •    •    •••                                               
+         │               █▓▓▓▓▓▓▓▓        ••• • •• • •• •• •   •                                              
+         │•             █▓▓▓▓▓▓▓▓▓             •    •           •• •                                          
+         │ ••     •••  █▓▓▓▓▓▓▓▓▓▓                                •                                           
+         │    • ••     ▓▓▓▓▓▓▓▓▓▓▓                                                                            
+         │   • •     •█▓▓▓▓▓▓▓▓▓▓▓                                  •  •                                      
+         │            ▓▓▓▓▓▓▓▓▓▓▓▓                                   ••   •  •                                
+         │            ▓▓▓▓▓▓▓▓▓▓▓▓                                      •• •  ••   •   •   •• •               
+         │            ▓▓▓▓▓▓▓▓▓▓▓▓                                          •   •••       •  • •           •  
+         │            ▓▓▓▓▓▓▓▓▓▓▓▓                                                    • •       •  ••••  •• ••
+         │            ▓▓▓▓▓▓▓▓▓▓▓▓                                                  ••   •        •    ••     
+  -53652 │            ▓▓▓▓▓▓▓▓▓▓▓▓                                                               •            
+         └────────────────────────────────────────────────────────────────────────────────────────────────────
+          i=0                                                                                         i=999999
+
+  Zoom sobre el mejor período (días 94.129 a 261.025)
+   34825 │                                                                        ███     ███                 
+         │                                                             ██     ████▓▓▓█ ███▓▓▓█•••••   •       
+         │                                                         ████▓▓█████▓▓▓▓▓▓▓▓█▓▓▓▓▓▓▓     ••• •• •• •
+         │                                                 ███    █▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓           •  • 
+         │                                         ████████▓▓▓████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓                
+         │                                       ██▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓                
+         │                                    ███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓                
+         │                                 ███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓                
+         │ •••••••••••             █ ██████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓                
+         │•           •         ███▓█▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓                
+         │             ••  █████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓                
+  -22352 │               •█▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓                
+         └────────────────────────────────────────────────────────────────────────────────────────────────────
+          i=94129                                                                                     i=261025
+
+==============================================================================
+PARTE B — Top 10 períodos contiguos no solapados
+==============================================================================
+  Criterio: ranking voraz. El período t es el mejor sub-arreglo que no se
+  solapa con los t−1 ya elegidos (el 1 es el sub-arreglo máximo de la parte A).
+  Algoritmo: D&C incremental — cada período elegido parte su segmento en dos;
+  a cada mitad se le aplica Kadane y su mejor período entra a un Max-Heap.
+
+--- Resultado ----------------------------------------------------------------
+  #   │  Utilidad  │   Inicio  │      Fin  │     Días  │  Verificación
+  ────┼────────────┼───────────┼───────────┼───────────┼──────────────
+  1   │    59.335  │  121.945  │  233.209  │  111.265  │             ✔
+  2   │    27.322  │  881.773  │  982.433  │  100.661  │             ✔
+  3   │    25.992  │  750.916  │  832.343  │   81.428  │             ✔
+  4   │    20.459  │  374.601  │  489.648  │  115.048  │             ✔
+  5   │    17.501  │   42.160  │  104.344  │   62.185  │             ✔
+  6   │    16.102  │  667.906  │  692.872  │   24.967  │             ✔
+  7   │    14.458  │  727.814  │  739.257  │   11.444  │             ✔
+  8   │    13.071  │  617.280  │  621.918  │    4.639  │             ✔
+  9   │    12.261  │  632.850  │  643.817  │   10.968  │             ✔
+  10  │    10.613  │  570.349  │  574.271  │    3.923  │             ✔
+
+  Suma de los 10 períodos: 217.114   ¿Algún solapamiento? no
+
+  Ubicación en el arreglo:
+  │····5555555·111111111111·············444444444444········0···8899·6666··77·333333333····22222222222·│
+  0                                                                                              999999
+  (cada carácter ≈ 10.000 días; dígito = número de período, 0 = período 10)
+
+--- Costo y estructura de datos ----------------------------------------------
+  Concepto                         │                              Valor
+  ─────────────────────────────────┼───────────────────────────────────
+  Tiempo total                     │                           12.00 ms
+  Llamadas a Kadane                │                 21 (≤ 2k + 1 = 21)
+  Elementos recorridos por Kadane  │  4.199.661 (4.20·n; peor caso k·n)
+  Comparaciones en Kadane          │                          8.399.322
+  Comparaciones en el heap         │      58 → O(k log k), despreciable
+  Tamaño máximo del heap           │        11 segmentos (memoria O(k))
+
+  Costo: O(k·n) en el peor caso (Kadane sobre los segmentos) + O(k log k) del heap.
+  En la práctica cada extracción solo recorre el segmento que se partió, por eso
+  se procesaron 4.20·n elementos en lugar de 10·n.
+
+--- Contraste: óptimo de la SUMA TOTAL con Programación Dinámica O(n·k) ------
+  PD (máximo de la suma de hasta 10 períodos disjuntos): 231.289
+  Voraz (ranking):                                       217.114
+  Diferencia: 14.175 (6.1 %)   Tiempo PD: 41.61 ms (20.000.000 operaciones)
+  El voraz no maximiza la suma total: al tomar primero el tramo más largo, a veces
+  "gasta" un lugar del top que dividido en dos tramos buenos rendiría más. Son dos
+  criterios distintos; se eligió el ranking porque responde "cuáles fueron los mejores
+  períodos" y es incremental (pedir el período 11 cuesta solo una extracción más).
+
+==============================================================================
+PARTE C — Mediana y percentiles de la utilidad diaria
+==============================================================================
+  Convenciones:
+   - Percentil p (rango más cercano): k = ⌈p·n/100⌉ − 1 (posición 0-based en el arreglo ordenado).
+   - Mediana con n par (n = 1.000.000): promedio de los dos centrales, posiciones 499.999 y 500.000.
+     Con Quickselect se selecciona la posición n/2−1; después, como todo lo de la derecha
+     es ≥, el central superior es el mínimo de a[n/2..n−1] (n/2 comparaciones más).
+   - Cada cuantil se calcula con Quickselect sobre una copia nueva del arreglo.
+
+--- 1. Mediana y percentiles -------------------------------------------------
+  Cuantil  │       Posición (0-based)  │  Quickselect Lomuto  │  Quickselect Hoare  │  Merge Sort
+  ─────────┼───────────────────────────┼──────────────────────┼─────────────────────┼────────────
+  Mediana  │  (499.999 + 500.000) / 2  │                   0  │                  0  │           0
+  P50      │                  499.999  │                   0  │                  0  │           0
+  P90      │                  899.999  │                  80  │                 80  │          80
+  P95      │                  949.999  │                  90  │                 90  │          90
+
+  Centrales: a[499.999] = 0, a[500.000] = 0 → mediana = 0
+
+--- 2. Validación sobre el arreglo ordenado (búsqueda binaria) ---------------
+  Arreglo de Merge Sort ordenado: sí
+  Criterio: v está en la posición k ⇔ #(< v) ≤ k < #(≤ v)  (#: contado con búsqueda binaria)
+
+  Cuantil         │  Valor  │        k  │   #(< v)  │   #(≤ v)  │    % ≤ v  │  Comp. bin.  │  OK
+  ────────────────┼─────────┼───────────┼───────────┼───────────┼───────────┼──────────────┼────
+  Mediana (inf.)  │      0  │  499.999  │  498.310  │  503.312  │  50.33 %  │          40  │   ✔
+  Mediana (sup.)  │      0  │  500.000  │  498.310  │  503.312  │  50.33 %  │          40  │   ✔
+  P50             │      0  │  499.999  │  498.310  │  503.312  │  50.33 %  │          40  │   ✔
+  P90             │     80  │  899.999  │  895.380  │  900.404  │  90.04 %  │          40  │   ✔
+  P95             │     90  │  949.999  │  945.325  │  950.249  │  95.02 %  │          40  │   ✔
+
+  Lomuto, Hoare y Merge Sort coinciden en todos los cuantiles: sí
+  Valores distintos en los datos: 201 (de −100 a 100) → cada valor se repite ≈ 4.975 veces.
+
+--- 3. Reporte de rendimiento (n = 1.000.000; mediana + p50 + p90 + p95) -----
+  Enfoque             │     Tiempo  │  Comparaciones  │     Swaps / movim.  │  Particiones  │        Memoria adicional
+  ────────────────────┼─────────────┼─────────────────┼─────────────────────┼───────────────┼─────────────────────────
+  Quickselect Lomuto  │  164.59 ms  │     50.205.416  │    7.519.502 swaps  │       12.708  │          O(1) — in-place
+  Quickselect Hoare   │   66.60 ms  │     11.311.605  │    1.835.554 swaps  │           90  │          O(1) — in-place
+  Merge Sort (1 vez)  │  159.82 ms  │     19.294.338  │  38.519.734 movim.  │            —  │  Θ(n) — 3.81 MB (buffer)
+
+  Detalle por cuantil (Quickselect):
+  Cuantil  │  Lomuto: tiempo  │  comparaciones  │      swaps  │  part.  │  Hoare: tiempo  │  comparaciones  │    swaps  │  part.
+  ─────────┼──────────────────┼─────────────────┼─────────────┼─────────┼─────────────────┼─────────────────┼───────────┼───────
+  mediana  │        42.54 ms  │      9.884.497  │  1.701.704  │   1698  │       26.72 ms  │      4.092.491  │  644.624  │     22
+  p50      │        34.51 ms  │      9.549.781  │  1.600.371  │   1697  │       17.45 ms  │      2.488.433  │  555.633  │     22
+  p90      │        45.35 ms  │     15.587.819  │  2.272.940  │   4630  │       16.72 ms  │      3.373.693  │  509.337  │     23
+  p95      │        42.20 ms  │     15.183.319  │  1.944.487  │   4683  │        5.70 ms  │      1.356.988  │  125.960  │     23
+
+  Referencia teórica: Quickselect promedio ≈ 2n–3,4n comparaciones (2.000.000–3.400.000) por cuantil;
+  Merge Sort ≈ n·log₂n − n = 18.931.569 comparaciones. Copiar la entrada (3.81 MB) no se cuenta como memoria del algoritmo.
+
+--- Entradas adversas y repetidos (n = 10.000, buscando la mediana) ----------
+  Entrada                 │  Lomuto pivote fijo  │  Lomuto aleatorio  │  Hoare pivote fijo  │  Hoare aleatorio
+  ────────────────────────┼──────────────────────┼────────────────────┼─────────────────────┼─────────────────
+  Datos reales (muestra)  │              29.080  │            23.501  │             24.042  │           19.690
+  Ya ordenado             │          37.497.500  │            50.436  │         37.512.501  │           50.537
+  Todos iguales           │          37.502.499  │        37.502.499  │             20.026  │           20.026
+
+  Referencias: lineal ≈ 2n–4n = 20.000–40.000   ·   cuadrático ≈ n²/8–n²/2 = 12.500.000–50.000.000
+  (pivote fijo: último elemento en Lomuto, primero en Hoare)
+
+--- Discusión ----------------------------------------------------------------
+  • Resultado medido: por cuantil, Hoare hizo ≈ 2.827.901 comparaciones, Lomuto ≈ 12.551.354
+    y Merge Sort 19.294.338 para ordenar todo. Hoare queda cerca de la cota O(n); Lomuto se
+    aleja por los repetidos, al punto de que sus 4 selecciones (50.205.416) superan a un solo Merge Sort.
+  • ¿Por qué Quickselect y no ordenar todo? Para UN cuantil, Quickselect descarta en cada paso
+    la parte que no contiene la posición k: en promedio n + n/2 + n/4 + … ≈ 2n → O(n), in-place.
+    Ordenar cuesta Θ(n log n) y Merge Sort además necesita un buffer de n elementos. Ordenar solo
+    conviene si se van a pedir MUCHOS cuantiles (se ordena una vez y cada consulta es O(1)).
+  • Entradas adversas: con pivote fijo, un arreglo ya ordenado hace que cada partición descarte
+    un solo elemento → O(n²). El pivote aleatorio (o mediana de tres) lo evita en la práctica;
+    la garantía O(n) en el peor caso la da la "mediana de medianas" (BFPRT).
+  • Repetidos: es el caso de estos datos (201 valores distintos en un millón). Lomuto manda los
+    iguales al pivote a un solo lado; cuando el subarreglo queda con un bloque de valores iguales
+    avanza de a un elemento → degeneración cuadrática local: miles de particiones y varias veces
+    más comparaciones que Hoare. Hoare se detiene también en los iguales y los reparte entre ambos
+    lados, así que parte por la mitad incluso si todos son iguales. Con muchos repetidos conviene
+    Hoare o una partición en tres vías (<, =, > pivote), que termina apenas k cae en el bloque "=".

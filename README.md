@@ -12,6 +12,7 @@ node index.js                    # menú interactivo con todos los ejercicios
 node ejercicio1/corrector.js     # o cada ejercicio por separado
 node ejercicio2/caminos.js
 node ejercicio3/sopa.js
+node ejercicio4/utilidad.js      # ≈ 2–3 s (procesa 1.000.000 de datos)
 ```
 
 ## Estructura
@@ -39,6 +40,17 @@ parcial/
     ├── fuerzaBruta.js    # Brute Force String Match en 8 direcciones
     ├── sopa.png          # imagen de la sopa de letras de la consigna
     └── salida.txt        # salida completa del programa
+└── ejercicio4/           # Mejor período de utilidad (1.000.000 de datos)
+    ├── utilidad.js       # programa principal (exporta main()): partes A, B y C
+    ├── datos.js          # carga datos_1mill_n.txt en un Int32Array
+    ├── datos_1mill_n.txt # P[0..n−1], un entero por línea
+    ├── subarreglo.js     # Kadane, Divide y Conquista, Fuerza Bruta
+    ├── topk.js           # top-k no solapados (D&C incremental + heap) y PD de suma total
+    ├── heap.js           # Max-Heap binario
+    ├── cuantiles.js      # Quickselect (Lomuto / Hoare), Merge Sort, búsqueda binaria
+    ├── grafico.js        # gráficos ASCII (utilidad acumulada y franja de períodos)
+    ├── medicion.js       # cronómetro, tablas y generador aleatorio con semilla
+    └── salida.txt        # salida completa del programa
 ```
 
 Para agregar un ejercicio al menú: crear la carpeta `ejercicioN/` con un módulo que
@@ -51,7 +63,7 @@ exporte `main()` y sumar una entrada en la lista `EJERCICIOS` de `index.js`.
 | 1 | Corrector ortográfico | AVL, Levenshtein (PD), búsqueda exhaustiva, BK-Tree, Counting Sort | ✔ Resuelto |
 | 2 | Caminos mínimos en grafo dirigido ponderado | Floyd-Warshall (PD), matriz de predecesores | ✔ Resuelto |
 | 3 | Búsqueda de palabras en una sopa de letras | Brute Force String Match en 8 direcciones (búsqueda exhaustiva) | ✔ Resuelto |
-| 4 | — | — | Pendiente |
+| 4 | Mejor período de utilidad con 1.000.000 de datos | Kadane, D&C, Fuerza Bruta, Max-Heap, PD, Quickselect (Lomuto/Hoare), Merge Sort, búsqueda binaria | ✔ Resuelto |
 
 ---
 
@@ -250,3 +262,122 @@ Cada palabra aparece exactamente una vez. Se probaron 2.304 alineaciones por pal
 
 (Se muestran solo las filas que contienen letras de las palabras; la matriz completa
 está en `salida.txt`.)
+
+---
+
+### Ejercicio 4 — Mejor período de utilidad con un millón de datos
+
+**Consigna.** `P[0..n−1]`, con n = 1.000.000, contiene la utilidad diaria (ganancia − costo)
+de una empresa. Determinar los mejores períodos contiguos según distintos criterios,
+midiendo el rendimiento empírico y contrastándolo con la complejidad teórica.
+
+**Datos:** 1.000.000 de enteros entre −100 y 100, con solo **201 valores distintos**
+(cada uno se repite ≈ 5.000 veces). Utilidad total −39.329; 49,7 % de los días con ganancia.
+
+> Los tiempos son de una corrida de referencia (Node.js 22) y varían según la máquina;
+> las comparaciones son exactas y reproducibles (los pivotes aleatorios usan semilla).
+
+#### Parte A — Sub-arreglo máximo (mejor período)
+
+| Algoritmo | Unidad | Complejidad | Tiempo | Comparaciones | Cota teórica | Medido / cota |
+|-----------|--------|-------------|-------:|--------------:|-------------:|:-------------:|
+| Kadane | U7 · PD | Θ(n) | ≈ 3–6 ms | 2.000.000 | 2n = 2.000.000 | 1,00 |
+| Divide y Conquista | U5 · D&C | Θ(n log n) | ≈ 130 ms | 21.951.422 | n·log₂n ≈ 19.931.569 | 1,10 |
+| Fuerza bruta (muestra n = 10.000) | U3 · FB | Θ(n²) | ≈ 120–160 ms | 50.005.000 | n(n+1)/2 | 1,00 |
+| Fuerza bruta (n = 10⁶, extrapolado) | U3 · FB | Θ(n²) | ≈ 20–27 min | ≈ 5·10¹¹ | n(n+1)/2 | — |
+
+- **Kadane** (PD): `mejorTerminandoEn(i) = max(P[i], mejorTerminandoEn(i−1) + P[i])`.
+- **Divide y Conquista**: el mejor período está a la izquierda, a la derecha o cruza el medio
+  (sufijo máximo izquierdo + prefijo máximo derecho, Θ(n)). `T(n) = 2T(n/2) + Θ(n)` → Teorema
+  Maestro caso 2 → Θ(n log n). D&C hace ≈ 11× las comparaciones de Kadane (la teoría predice
+  log₂n / 2 ≈ 10×); en tiempo la diferencia es mayor por el costo de las 2n − 1 llamadas recursivas.
+
+**Salida:** utilidad máxima **59.335**, en los días **121.945 a 233.209** (inclusive, 111.265
+días). Los tres algoritmos dan el mismo período. El programa grafica en ASCII la utilidad
+acumulada `S(i)`: el mejor período es la mayor subida de esa curva (`suma(l..r) = S(r) − S(l−1)`),
+resaltada con `█`, y luego hace un zoom sobre ese tramo.
+
+#### Parte B — Top 10 períodos no solapados
+
+**Criterio (ranking voraz):** el período *t* es el mejor sub-arreglo que no se solapa con los
+*t − 1* ya elegidos.
+
+**Algoritmo — Divide y Conquista incremental + Max-Heap:** se aplica Kadane a `[0, n−1]` y su
+mejor período entra a un Max-Heap (clave = utilidad). Se extrae el máximo, que **parte su
+segmento en dos** (`[a, l−1]` y `[r+1, b]`); a cada mitad se le aplica Kadane y su mejor período
+entra al heap. Se repite k veces.
+
+| # | Utilidad | Inicio | Fin | Días |
+|---|---------:|-------:|----:|-----:|
+| 1 | 59.335 | 121.945 | 233.209 | 111.265 |
+| 2 | 27.322 | 881.773 | 982.433 | 100.661 |
+| 3 | 25.992 | 750.916 | 832.343 | 81.428 |
+| 4 | 20.459 | 374.601 | 489.648 | 115.048 |
+| 5 | 17.501 | 42.160 | 104.344 | 62.185 |
+| 6 | 16.102 | 667.906 | 692.872 | 24.967 |
+| 7 | 14.458 | 727.814 | 739.257 | 11.444 |
+| 8 | 13.071 | 617.280 | 621.918 | 4.639 |
+| 9 | 12.261 | 632.850 | 643.817 | 10.968 |
+| 10 | 10.613 | 570.349 | 574.271 | 3.923 |
+
+Suma: **217.114**, sin solapamientos.
+
+**Costo y estructura de datos:** O(k·n) en el peor caso por Kadane sobre los segmentos, más
+O(k log k) del heap (≤ 2k + 1 elementos, memoria O(k)). En la práctica se recorrieron 4,2·n
+elementos (21 llamadas a Kadane, ≈ 20 ms) y el heap hizo solo 58 comparaciones.
+
+**Contraste:** si el criterio fuera maximizar la **suma total** de 10 períodos disjuntos, el
+óptimo exacto por Programación Dinámica en O(n·k) da **231.289** (6,1 % más que el voraz). El
+voraz no maximiza la suma total porque toma primero el tramo más largo, que a veces rendiría
+más partido en dos. Se eligió el ranking porque responde "cuáles fueron los mejores
+períodos" y es incremental: el período 11 cuesta una sola extracción más.
+
+#### Parte C — Mediana y percentiles
+
+**Convenciones:** percentil *p* por rango más cercano, posición `k = ⌈p·n/100⌉ − 1`
+(0-based). Como **n es par**, la mediana es el promedio de los dos centrales (posiciones
+499.999 y 500.000). Con Quickselect se selecciona n/2 − 1 y el central superior es el mínimo
+de la mitad derecha.
+
+| Cuantil | Posición | Lomuto | Hoare | Merge Sort |
+|---------|---------:|:------:|:-----:|:----------:|
+| Mediana | (499.999 + 500.000)/2 | 0 | 0 | 0 |
+| P50 | 499.999 | 0 | 0 | 0 |
+| P90 | 899.999 | 80 | 80 | 80 |
+| P95 | 949.999 | 90 | 90 | 90 |
+
+**Validación:** sobre el arreglo de Merge Sort, con búsqueda binaria (≈ 40 comparaciones),
+se comprueba `#(< v) ≤ k < #(≤ v)` para cada cuantil. Por ejemplo, P90 = 80: hay 895.380
+valores < 80 y 900.404 ≤ 80 (90,04 %), así que la posición 899.999 cae en el bloque de los 80. ✔
+
+**Reporte** (mediana + P50 + P90 + P95):
+
+| Enfoque | Tiempo | Comparaciones | Swaps / movimientos | Particiones | Memoria adicional |
+|---------|-------:|--------------:|--------------------:|------------:|-------------------|
+| Quickselect Lomuto | ≈ 225 ms | 50.205.416 | 7.519.502 swaps | 12.708 | O(1), in-place |
+| Quickselect Hoare | ≈ 80 ms | 11.311.605 | 1.835.554 swaps | 90 | O(1), in-place |
+| Merge Sort (una vez) | ≈ 200 ms | 19.294.338 | 38.519.734 movim. | — | Θ(n) = 3,81 MB |
+
+**Entradas adversas y repetidos** (n = 10.000, mediana; comparaciones):
+
+| Entrada | Lomuto fijo | Lomuto aleatorio | Hoare fijo | Hoare aleatorio |
+|---------|-----------:|-----------------:|-----------:|----------------:|
+| Datos reales (muestra) | 29.080 | 23.501 | 24.042 | 19.690 |
+| Ya ordenado | 37.497.500 | 50.436 | 37.512.501 | 50.537 |
+| Todos iguales | 37.502.499 | 37.502.499 | 20.026 | 20.026 |
+
+**Discusión**
+
+- **Quickselect vs. ordenar todo:** para un solo cuantil, Quickselect descarta en cada paso
+  la parte que no contiene k (n + n/2 + n/4 + … ≈ 2n → O(n), in-place). Ordenar cuesta
+  Θ(n log n) y Merge Sort además usa un buffer de n elementos. Ordenar solo conviene si se
+  van a pedir muchos cuantiles (se ordena una vez y cada consulta es O(1)).
+- **Entradas adversas:** con pivote fijo, un arreglo ya ordenado degenera en O(n²) (cada
+  partición descarta un elemento). El pivote aleatorio lo evita en la práctica; la garantía
+  O(n) en el peor caso la da la mediana de medianas (BFPRT).
+- **Repetidos:** es exactamente el caso de estos datos. Lomuto manda los iguales al pivote a
+  un solo lado y, en un bloque de valores iguales, avanza de a un elemento: miles de
+  particiones y ≈ 4,4× las comparaciones de Hoare. Sus 4 selecciones llegan a superar a un
+  Merge Sort completo. Hoare se detiene también en los iguales y los reparte entre ambos lados,
+  por eso parte por la mitad incluso con todos los valores iguales. Con muchos repetidos conviene
+  Hoare o una partición en tres vías (<, =, >).
