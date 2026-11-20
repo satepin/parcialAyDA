@@ -8,7 +8,7 @@ const readline = require('readline/promises');
 const EJERCICIOS = [
   { nombre: 'Corrector ortográfico (distancia de Levenshtein)', modulo: './ejercicio1/corrector' },
   { nombre: 'Caminos mínimos (Floyd-Warshall)', modulo: './ejercicio2/caminos' },
-  // { nombre: '...', modulo: './ejercicio3/...' },
+  { nombre: 'Sopa de letras (Brute Force String Match)', modulo: './ejercicio3/sopa' },
   // { nombre: '...', modulo: './ejercicio4/...' },
 ];
 

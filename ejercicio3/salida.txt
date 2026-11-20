@@ -1,0 +1,100 @@
+
+================================================================
+ALGORITMO: Brute Force String Match en 8 direcciones (U3)
+================================================================
+Para cada palabra, cada celda (f, c) y cada dirección (df, dc):
+  comparar matriz[f + df·k][c + dc·k] con palabra[k], k = 0..m-1
+  y cortar en la primera letra distinta.
+Direcciones: derecha →, izquierda ←, abajo ↓, arriba ↑, diagonal ↘, diagonal ↖, diagonal ↙, diagonal ↗
+Complejidad: O(R · C · 8 · m) por palabra.
+
+================================================================
+MATRIZ (20 × 20)
+================================================================
+       1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+   1   W  R  E  D  L  Q  W  E  R  T  Y  U  I  O  P  A  S  D  F  G
+   2   Z  X  U  V  B  N  M  L  K  J  H  A  R  B  O  L  Q  W  E  R
+   3   T  Y  U  I  O  P  A  S  D  F  G  H  J  K  L  Z  X  C  V  B
+   4   M  O  U  K  S  Q  W  E  R  T  Y  U  I  O  P  H  S  D  F  G
+   5   M  N  B  V  C  X  Z  L  K  J  H  G  F  D  S  E  Q  W  E  R
+   6   Q  W  E  R  T  Y  U  I  O  P  A  S  D  F  G  A  J  K  L  Z
+   7   X  C  V  B  N  M  L  K  J  H  G  F  D  S  A  P  W  E  R  T
+   8   H  Q  W  P  N  O  D  O  S  T  Y  U  I  O  P  S  S  D  F  G
+   9   Z  X  C  V  B  N  M  L  K  J  H  G  F  D  S  A  Q  W  E  R
+  10   R  R  E  F  O  Q  W  E  R  T  Y  U  I  O  P  A  S  D  F  G
+  11   A  S  D  F  G  H  J  K  L  Z  X  C  V  B  N  M  Q  W  E  R
+  12   T  Y  U  I  O  P  A  S  D  F  G  H  J  K  L  Z  X  C  V  B
+  13   N  M  Q  W  E  R  T  Y  U  I  O  S  O  R  T  S  G  H  J  K
+  14   L  Z  X  C  V  B  N  M  Q  W  E  R  T  Y  U  I  O  P  A  S
+  15   D  F  G  H  J  K  L  Z  X  C  V  B  N  M  Q  W  E  R  T  Y
+  16   U  I  O  P  G  S  D  F  G  H  J  K  L  Z  X  C  V  B  N  M
+  17   L  Q  R  K  R  Q  W  E  R  T  Y  U  I  O  P  A  S  D  F  G
+  18   Z  X  C  V  A  N  M  L  K  J  H  G  F  D  S  A  Q  W  E  R
+  19   T  Y  U  I  F  P  A  S  D  F  G  H  J  K  L  Z  X  C  V  B
+  20   N  M  Q  W  O  R  T  Y  U  I  O  P  A  S  D  F  G  H  J  K
+
+================================================================
+RESULTADOS
+================================================================
+
+ARBOL
+  Inicio (2,12) → fin (2,16)   dirección: derecha →
+  Celdas: A(2,12) R(2,13) B(2,14) O(2,15) L(2,16)
+  Alineaciones probadas: 2304   comparaciones de caracteres: 2410
+
+HEAPS
+  Inicio (4,16) → fin (8,16)   dirección: abajo ↓
+  Celdas: H(4,16) E(5,16) A(6,16) P(7,16) S(8,16)
+  Alineaciones probadas: 2304   comparaciones de caracteres: 2398
+
+SORTS
+  Inicio (13,12) → fin (13,16)   dirección: derecha →
+  Celdas: S(13,12) O(13,13) R(13,14) T(13,15) S(13,16)
+  Alineaciones probadas: 2304   comparaciones de caracteres: 2450
+
+NODOS
+  Inicio (8,5) → fin (8,9)   dirección: derecha →
+  Celdas: N(8,5) O(8,6) D(8,7) O(8,8) S(8,9)
+  Alineaciones probadas: 2304   comparaciones de caracteres: 2389
+
+GRAFO
+  Inicio (16,5) → fin (20,5)   dirección: abajo ↓
+  Celdas: G(16,5) R(17,5) A(18,5) F(19,5) O(20,5)
+  Alineaciones probadas: 2304   comparaciones de caracteres: 2425
+
+================================================================
+UBICACIÓN DE LAS PALABRAS EN LA MATRIZ
+================================================================
+       1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+   1   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+   2   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  A  R  B  O  L  ·  ·  ·  ·
+   3   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+   4   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  H  ·  ·  ·  ·
+   5   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  E  ·  ·  ·  ·
+   6   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  A  ·  ·  ·  ·
+   7   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  P  ·  ·  ·  ·
+   8   ·  ·  ·  ·  N  O  D  O  S  ·  ·  ·  ·  ·  ·  S  ·  ·  ·  ·
+   9   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  10   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  11   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  12   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  13   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  S  O  R  T  S  ·  ·  ·  ·
+  14   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  15   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  16   ·  ·  ·  ·  G  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  17   ·  ·  ·  ·  R  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  18   ·  ·  ·  ·  A  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  19   ·  ·  ·  ·  F  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  20   ·  ·  ·  ·  O  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+
+================================================================
+RESUMEN
+================================================================
+  ✔ ARBOL  (2,12) derecha →
+  ✔ HEAPS  (4,16) abajo ↓
+  ✔ SORTS  (13,12) derecha →
+  ✔ NODOS  (8,5) derecha →
+  ✔ GRAFO  (16,5) abajo ↓
+
+Encontradas: 5 de 5
+Comparaciones de caracteres en total: 12072

@@ -11,6 +11,7 @@ Requiere Node.js (sin dependencias externas).
 node index.js                    # menú interactivo con todos los ejercicios
 node ejercicio1/corrector.js     # o cada ejercicio por separado
 node ejercicio2/caminos.js
+node ejercicio3/sopa.js
 ```
 
 ## Estructura
@@ -32,6 +33,12 @@ parcial/
     ├── floyd.js          # Floyd-Warshall + matriz de predecesores
     ├── grafo.png         # imagen del grafo de la consigna
     └── salida.txt        # salida completa del programa
+└── ejercicio3/           # Sopa de letras
+    ├── sopa.js           # programa principal (exporta main())
+    ├── matriz.js         # matriz 20×20 transcripta y palabras a buscar
+    ├── fuerzaBruta.js    # Brute Force String Match en 8 direcciones
+    ├── sopa.png          # imagen de la sopa de letras de la consigna
+    └── salida.txt        # salida completa del programa
 ```
 
 Para agregar un ejercicio al menú: crear la carpeta `ejercicioN/` con un módulo que
@@ -43,7 +50,7 @@ exporte `main()` y sumar una entrada en la lista `EJERCICIOS` de `index.js`.
 |---|------|-------------------|--------|
 | 1 | Corrector ortográfico | AVL, Levenshtein (PD), búsqueda exhaustiva, BK-Tree, Counting Sort | ✔ Resuelto |
 | 2 | Caminos mínimos en grafo dirigido ponderado | Floyd-Warshall (PD), matriz de predecesores | ✔ Resuelto |
-| 3 | — | — | Pendiente |
+| 3 | Búsqueda de palabras en una sopa de letras | Brute Force String Match en 8 direcciones (búsqueda exhaustiva) | ✔ Resuelto |
 | 4 | — | — | Pendiente |
 
 ---
@@ -180,3 +187,66 @@ Hay ciclo negativo si al final algún `D[i][i] < 0`.
 **6. Ciclos negativos.** Toda la diagonal de D queda en 0 → **no existe ningún ciclo
 negativo**; las distancias son válidas aunque haya arcos negativos. Los resultados se
 verificaron además con Bellman-Ford desde cada vértice (coinciden).
+
+---
+
+### Ejercicio 3 — Sopa de letras
+
+**Consigna.** Buscar en la matriz de `ejercicio3/sopa.png` (20 × 20) las palabras
+`ARBOL`, `HEAPS`, `SORTS`, `NODOS` y `GRAFO`. Una palabra puede formarse recorriendo
+celdas adyacentes en cualquiera de las ocho direcciones. El algoritmo se elige
+libremente entre los de la teoría.
+
+**1. Algoritmo elegido: Brute Force String Match en 8 direcciones** (U3 · Fuerza Bruta)
+
+El String Match por fuerza bruta alinea el patrón en cada posición del texto y compara
+carácter por carácter hasta la primera diferencia. Acá el texto es la matriz: la
+palabra se alinea en **cada celda** y en **cada una de las 8 direcciones**
+(→ ← ↓ ↑ ↘ ↖ ↙ ↗).
+
+```
+para cada palabra p (largo m):
+  para cada celda (f, c) y cada dirección (df, dc):
+    si la palabra no entra en la matriz → saltear
+    k = 0
+    mientras k < m y matriz[f + df·k][c + dc·k] == p[k]:  k++
+    si k == m → aparición encontrada en (f, c) con dirección (df, dc)
+```
+
+Por qué este algoritmo:
+- Es el algoritmo de búsqueda de patrones que da la teoría (U3).
+- Es una **búsqueda exhaustiva**: revisa cada alineación una vez y encuentra todas las apariciones.
+- Complejidad O(R · C · 8 · m). Con una matriz de 20 × 20 y palabras de 5 letras el costo es
+  mínimo (≈ 2.400 comparaciones por palabra), así que no justifica una técnica más compleja.
+
+**Resultados** (fila, columna — contando desde 1)
+
+| Palabra | Inicio | Fin | Dirección |
+|---------|:------:|:---:|-----------|
+| ARBOL | (2,12) | (2,16) | horizontal → |
+| HEAPS | (4,16) | (8,16) | vertical ↓ |
+| SORTS | (13,12) | (13,16) | horizontal → |
+| NODOS | (8,5) | (8,9) | horizontal → |
+| GRAFO | (16,5) | (20,5) | vertical ↓ |
+
+Cada palabra aparece exactamente una vez. Se probaron 2.304 alineaciones por palabra y
+12.072 comparaciones de caracteres en total.
+
+```
+       1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+   2   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  A  R  B  O  L  ·  ·  ·  ·
+   4   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  H  ·  ·  ·  ·
+   5   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  E  ·  ·  ·  ·
+   6   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  A  ·  ·  ·  ·
+   7   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  P  ·  ·  ·  ·
+   8   ·  ·  ·  ·  N  O  D  O  S  ·  ·  ·  ·  ·  ·  S  ·  ·  ·  ·
+  13   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  S  O  R  T  S  ·  ·  ·  ·
+  16   ·  ·  ·  ·  G  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  17   ·  ·  ·  ·  R  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  18   ·  ·  ·  ·  A  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  19   ·  ·  ·  ·  F  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+  20   ·  ·  ·  ·  O  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+```
+
+(Se muestran solo las filas que contienen letras de las palabras; la matriz completa
+está en `salida.txt`.)
