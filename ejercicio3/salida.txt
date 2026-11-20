@@ -98,3 +98,19 @@ RESUMEN
 
 Encontradas: 5 de 5
 Comparaciones de caracteres en total: 12072
+
+================================================================
+BUSCAR UNA PALABRA NUEVA (mismo algoritmo)
+================================================================
+
+DFS
+  1) Inicio (5,14) → fin (7,14)   dirección: abajo ↓
+     Celdas: D(5,14) F(6,14) S(7,14)
+  2) Inicio (7,13) → fin (5,15)   dirección: diagonal ↗
+     Celdas: D(7,13) F(6,14) S(5,15)
+  Apariciones: 2   alineaciones probadas: 2.736   comparaciones: 2.895
+  (solo las filas donde aparece)
+       1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+   5   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  D  S  ·  ·  ·  ·  ·
+   6   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  F  ·  ·  ·  ·  ·  ·
+   7   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  D  S  ·  ·  ·  ·  ·  ·

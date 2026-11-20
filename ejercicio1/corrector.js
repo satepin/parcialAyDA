@@ -7,6 +7,9 @@
 //  - Búsqueda exhaustiva (U3, Fuerza Bruta):   comparar contra todas las palabras
 //  - BK-Tree (U7, "investigar"):               misma búsqueda, podando ramas
 //  - Counting Sort estable (U3 / TP3):         ordenar sugerencias por distancia
+//
+// Criterio de comparación: las vocales con tilde cuentan igual que sin tilde
+// (ó = o). Por eso "programador" queda a distancia 3, como en el ejemplo.
 
 const { construirMatriz, reconstruirCamino } = require('./levenshtein');
 const { AVL } = require('./avl');
@@ -50,11 +53,15 @@ function imprimirOperaciones(ops) {
     console.log(`  ${paso}. ${op.flecha} ${op.tipo.toUpperCase()}: ${op.desc}  (+${op.costo})`);
   }
   if (paso === 0) console.log('  (sin operaciones: las palabras son iguales)');
-  console.log(`  Coincidencias (↖ costo 0): ${ops.filter((o) => o.tipo === 'coincidencia').length}`);
+  const coincidencias = ops.filter((o) => o.tipo === 'coincidencia');
+  const conTilde = coincidencias.filter((o) => o.tilde);
+  console.log(`  Coincidencias (↖ costo 0): ${coincidencias.length}` +
+    (conTilde.length ? `, de ellas ${conTilde.length} ignorando la tilde: ${conTilde.map((o) => o.desc.split(' (')[0]).join(', ')}` : ''));
 }
 
 function main() {
   console.log(`Palabra a corregir: "${PALABRA}"   Umbral: distancia ≤ ${UMBRAL}`);
+  console.log('Criterio: las vocales con tilde cuentan igual que sin tilde (ó = o, á = a, …); la ñ es distinta de la n.');
 
   // ---------- Paso 1: ¿existe? (AVL) ----------
   titulo('PASO 1 — Diccionario en un Árbol AVL (Transforma y Conquista)');

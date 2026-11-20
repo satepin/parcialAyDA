@@ -30,7 +30,7 @@ chmod +x ejecutar.sh
 node index.js                    # menú interactivo con todos los ejercicios
 node ejercicio1/corrector.js     # o cada ejercicio por separado
 node ejercicio2/caminos.js
-node ejercicio3/sopa.js
+node ejercicio3/sopa.js          # pregunta palabras nuevas; o: node ejercicio3/sopa.js DFS RED
 node ejercicio4/utilidad.js      # ≈ 2–3 s (procesa 1.000.000 de datos)
 ```
 
@@ -57,7 +57,7 @@ parcial/
     ├── grafo.png         # imagen del grafo de la consigna
     └── salida.txt        # salida completa del programa
 └── ejercicio3/           # Sopa de letras
-    ├── sopa.js           # programa principal (exporta main())
+    ├── sopa.js           # programa principal (exporta main()) + búsqueda de palabras nuevas
     ├── matriz.js         # matriz 20×20 transcripta y palabras a buscar
     ├── fuerzaBruta.js    # Brute Force String Match en 8 direcciones
     ├── sopa.png          # imagen de la sopa de letras de la consigna
@@ -84,7 +84,7 @@ exporte `main()` y sumar una entrada en la lista `EJERCICIOS` de `index.js`.
 |---|------|-------------------|--------|
 | 1 | Corrector ortográfico | AVL, Levenshtein (PD), búsqueda exhaustiva, BK-Tree, Counting Sort | ✔ Resuelto |
 | 2 | Caminos mínimos en grafo dirigido ponderado | Floyd-Warshall (PD), matriz de predecesores | ✔ Resuelto |
-| 3 | Búsqueda de palabras en una sopa de letras | Brute Force String Match en 8 direcciones (búsqueda exhaustiva) | ✔ Resuelto |
+| 3 | Búsqueda de palabras en una sopa de letras (+ palabras nuevas) | Brute Force String Match en 8 direcciones (búsqueda exhaustiva) | ✔ Resuelto |
 | 4 | Mejor período de utilidad con 1.000.000 de datos | Kadane, D&C, Fuerza Bruta, Max-Heap, PD, Quickselect (Lomuto/Hoare), Merge Sort, búsqueda binaria | ✔ Resuelto |
 
 ---
@@ -116,30 +116,34 @@ D[i][j] = min( D[i-1][j]   + 1,          ↑ borrar
                D[i-1][j-1] + costo )     ↖ sustituir (costo 0 si las letras son iguales)
 ```
 
+**Criterio de comparación:** las vocales con tilde cuentan igual que sin tilde
+(`ó = o`, `á = a`, …), como pide la consigna. La `ñ` se mantiene distinta de la `n`.
+La matriz muestra las letras originales; solo la comparación ignora la tilde. El AVL usa
+el mismo criterio (`localeCompare` con `sensitivity: 'base'`).
+
 **Resultados**
 
 | Palabra | Distancia | Operaciones |
 |---------|:---------:|-------------|
 | programación | 1 | sustituir e→i |
+| programador | 3 | borrar c, sustituir e→d, sustituir n→r (`ó = o` coincide) |
 | programaciónes | 3 | sustituir e→i, insertar e, insertar s |
 | programaciónal | 3 | sustituir e→i, insertar a, insertar l |
-| programador | 4 | borrar c, e→d, ó→o, n→r |
 | programación web | 5 | sustituir e→i + 4 inserciones (` web`) |
 | probabilístico | 11 | — |
 
-El BK-Tree visita 4 de las 6 palabras y obtiene las mismas sugerencias que la búsqueda
-exhaustiva.
+El BK-Tree visita 5 de las 6 palabras (poda `probabilístico`) y obtiene las mismas
+sugerencias que la búsqueda exhaustiva. Ante empates de distancia, el Counting Sort estable
+respeta el orden del diccionario.
 
 ```
 ¿Quisiste decir?
 
 1. programación (distancia = 1)
-2. programaciónes (distancia = 3)
-3. programaciónal (distancia = 3)
+2. programador (distancia = 3)
+3. programaciónes (distancia = 3)
+4. programaciónal (distancia = 3)
 ```
-
-> **Nota:** el ejemplo de la consigna muestra `programador (distancia = 3)`, pero la
-> distancia real es 4 porque `ó ≠ o`; por eso queda fuera del umbral.
 
 ---
 
@@ -284,6 +288,28 @@ Cada palabra aparece exactamente una vez. Se probaron 2.304 alineaciones por pal
 
 (Se muestran solo las filas que contienen letras de las palabras; la matriz completa
 está en `salida.txt`.)
+
+**3. Adición: buscar una palabra nueva.** Después de las 5 palabras de la consigna, el
+programa pide palabras por teclado y las busca con el mismo algoritmo (Enter vacío para
+terminar). Se ignoran mayúsculas y tildes, se rechazan palabras con números o espacios y se
+controla que el largo entre en la matriz. Para cada palabra muestra todas sus apariciones,
+la dirección, las celdas, las comparaciones realizadas y las filas de la matriz donde aparece.
+
+- Desde el menú (opción 3) o con `node ejercicio3/sopa.js`: pregunta por teclado.
+- Sin preguntar: `node ejercicio3/sopa.js DFS RED SOL`.
+
+El menú le pasa al ejercicio su propia interfaz de lectura (`main({ rl })`), así no hay dos
+lectores del teclado a la vez.
+
+| Palabra nueva | Apariciones | Dónde |
+|---------------|:-----------:|-------|
+| DFS | 2 | (5,14) vertical ↓ · (7,13) diagonal ↗ |
+| RED | 1 | (1,2) horizontal → |
+| SOL | 1 | (18,15) diagonal ↖ |
+
+DFS (búsqueda en profundidad, Unidad 6) aparece dos veces y las dos apariciones comparten
+la F de (6,14): el algoritmo encuentra apariciones que se cruzan porque prueba cada celda y
+cada dirección por separado.
 
 ---
 

@@ -18,9 +18,19 @@
 // "ó" como un solo carácter (NFC) y recorrido por caracteres, no por unidades UTF-16.
 const chars = (s) => Array.from(s.normalize('NFC'));
 
+// Criterio de la consigna: las vocales con tilde cuentan igual que sin tilde
+// (ó = o, á = a, ...). La ñ NO se modifica: en castellano es otra letra.
+const SIN_TILDE = { á: 'a', é: 'e', í: 'i', ó: 'o', ú: 'u', ü: 'u', Á: 'A', É: 'E', Í: 'I', Ó: 'O', Ú: 'U', Ü: 'U' };
+const base = (c) => SIN_TILDE[c] ?? c;
+const normalizar = (s) => chars(s).map(base).join('');
+
 function construirMatriz(origen, destino) {
+  // a y b conservan las letras originales (para mostrar la matriz);
+  // la comparación se hace sobre las letras sin tilde.
   const a = chars(origen);
   const b = chars(destino);
+  const an = a.map(base);
+  const bn = b.map(base);
   const m = a.length;
   const n = b.length;
   const D = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
@@ -30,7 +40,7 @@ function construirMatriz(origen, destino) {
 
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
-      const costo = a[i - 1] === b[j - 1] ? 0 : 1;
+      const costo = an[i - 1] === bn[j - 1] ? 0 : 1;
       D[i][j] = Math.min(
         D[i - 1][j] + 1, //        ↑ borrar
         D[i][j - 1] + 1, //        ← insertar
@@ -58,11 +68,12 @@ function reconstruirCamino(D, a, b) {
 
   while (i > 0 || j > 0) {
     if (i > 0 && j > 0) {
-      const costo = a[i - 1] === b[j - 1] ? 0 : 1;
+      const costo = base(a[i - 1]) === base(b[j - 1]) ? 0 : 1;
       if (D[i][j] === D[i - 1][j - 1] + costo) {
+        const tilde = costo === 0 && a[i - 1] !== b[j - 1] ? ', se ignora la tilde' : '';
         ops.push(
           costo === 0
-            ? { tipo: 'coincidencia', flecha: '↖', desc: `'${a[i - 1]}' = '${b[j - 1]}' (se copia la diagonal)`, costo: 0 }
+            ? { tipo: 'coincidencia', flecha: '↖', desc: `'${a[i - 1]}' = '${b[j - 1]}' (se copia la diagonal${tilde})`, costo: 0, tilde: !!tilde }
             : { tipo: 'sustitución', flecha: '↖', desc: `'${a[i - 1]}' → '${b[j - 1]}' (posición ${i})`, costo: 1 }
         );
         i--; j--;
@@ -85,4 +96,4 @@ function reconstruirCamino(D, a, b) {
   return { ops, camino };
 }
 
-module.exports = { chars, construirMatriz, distancia, reconstruirCamino };
+module.exports = { chars, normalizar, construirMatriz, distancia, reconstruirCamino };

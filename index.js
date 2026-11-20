@@ -4,7 +4,7 @@
 const readline = require('readline/promises');
 
 // Para agregar un ejercicio: sumar una entrada con su nombre y el módulo
-// que exporta main().
+// que exporta main(). main recibe { rl } por si necesita pedir datos al usuario.
 const EJERCICIOS = [
   { nombre: 'Corrector ortográfico (distancia de Levenshtein)', modulo: './ejercicio1/corrector' },
   { nombre: 'Caminos mínimos (Floyd-Warshall)', modulo: './ejercicio2/caminos' },
@@ -39,7 +39,9 @@ async function principal() {
 
     console.log(`\n>>> Ejercicio ${indice + 1}: ${ejercicio.nombre}\n`);
     try {
-      await require(ejercicio.modulo).main();
+      // Se comparte la misma interfaz de lectura: si un ejercicio abriera la
+      // suya, las dos leerían el teclado a la vez y se pisarían.
+      await require(ejercicio.modulo).main({ rl });
     } catch (err) {
       console.error('Error al ejecutar el ejercicio:', err);
     }

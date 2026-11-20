@@ -1,4 +1,5 @@
 Palabra a corregir: "programaceón"   Umbral: distancia ≤ 3
+Criterio: las vocales con tilde cuentan igual que sin tilde (ó = o, á = a, …); la ñ es distinta de la n.
 
 ======================================================================
 PASO 1 — Diccionario en un Árbol AVL (Transforma y Conquista)
@@ -47,7 +48,7 @@ Operaciones, en el orden en que se aplican:
   Coincidencias (↖ costo 0): 11
 
 ----------------------------------------------------------------------
-"programaceón" → "programador"   distancia = 4   (matriz 13×12)
+"programaceón" → "programador"   distancia = 3   (matriz 13×12)
 ----------------------------------------------------------------------
       ""   p   r   o   g   r   a   m   a   d   o   r
   "" [0]   1   2   3   4   5   6   7   8   9  10  11
@@ -61,8 +62,8 @@ Operaciones, en el orden en que se aplican:
    a   8   7   6   5   4   3   2   1 [0]   1   2   3
    c   9   8   7   6   5   4   3   2 [1]   1   2   3
    e  10   9   8   7   6   5   4   3   2 [2]   2   3
-   ó  11  10   9   8   7   6   5   4   3   3 [3]   3
-   n  12  11  10   9   8   7   6   5   4   4   4 [4]
+   ó  11  10   9   8   7   6   5   4   3   3 [2]   3
+   n  12  11  10   9   8   7   6   5   4   4   3 [3]
   [x] = celdas del camino óptimo   ↑ borrar   ← insertar   ↖ sustituir/igual
 
 Camino óptimo (reconstruido desde la última celda hasta (0,0)):
@@ -70,9 +71,8 @@ Camino óptimo (reconstruido desde la última celda hasta (0,0)):
 Operaciones, en el orden en que se aplican:
   1. ↑ ELIMINACIÓN: borrar 'c' (posición 9)  (+1)
   2. ↖ SUSTITUCIÓN: 'e' → 'd' (posición 10)  (+1)
-  3. ↖ SUSTITUCIÓN: 'ó' → 'o' (posición 11)  (+1)
-  4. ↖ SUSTITUCIÓN: 'n' → 'r' (posición 12)  (+1)
-  Coincidencias (↖ costo 0): 8
+  3. ↖ SUSTITUCIÓN: 'n' → 'r' (posición 12)  (+1)
+  Coincidencias (↖ costo 0): 9, de ellas 1 ignorando la tilde: 'ó' = 'o'
 
 ----------------------------------------------------------------------
 "programaceón" → "programaciónes"   distancia = 3   (matriz 13×15)
@@ -172,7 +172,7 @@ Operaciones, en el orden en que se aplican:
    a   8   7   6   5   5   4   4   4   5   6 [7]   8   9  10  11
    c   9   8   7   6   6   5   5   5   5   6   7 [8]   9   9  10
    e  10   9   8   7   7   6   6   6   6   6   7   8 [9]  10  10
-   ó  11  10   9   8   8   7   7   7   7   7   7   8   9[10]  11
+   ó  11  10   9   8   8   7   7   7   7   7   7   8   9[10]  10
    n  12  11  10   9   9   8   8   8   8   8   8   8   9  10[11]
   [x] = celdas del camino óptimo   ↑ borrar   ← insertar   ↖ sustituir/igual
 
@@ -196,7 +196,7 @@ Operaciones, en el orden en que se aplican:
 Resumen de distancias
 ======================================================================
   ✔ programación       1
-  ✘ programador        4
+  ✔ programador        3
   ✔ programaciónes     3
   ✔ programaciónal     3
   ✘ programación web   5
@@ -208,12 +208,12 @@ PASO 3 — Búsqueda con BK-Tree (poda por desigualdad triangular)
   [raíz] programación
       [d=2] programaciónes
           [d=2] programaciónal
-      [d=4] programador
-          [d=8] programación web
+      [d=3] programador
+      [d=4] programación web
       [d=10] probabilístico
 
-Nodos visitados: 4 de 6 (programación, programaciónes, programaciónal, programador)
-Encontradas: programación (1), programaciónes (3), programaciónal (3)
+Nodos visitados: 5 de 6 (programación, programación web, programaciónes, programaciónal, programador)
+Encontradas: programación (1), programaciónes (3), programaciónal (3), programador (3)
 Coincide con la búsqueda exhaustiva: sí
 
 ======================================================================
@@ -223,5 +223,6 @@ PASO 4 — Selección (≤ 3) y orden por distancia con Counting Sort
 ¿Quisiste decir?
 
 1. programación (distancia = 1)
-2. programaciónes (distancia = 3)
-3. programaciónal (distancia = 3)
+2. programador (distancia = 3)
+3. programaciónes (distancia = 3)
+4. programaciónal (distancia = 3)

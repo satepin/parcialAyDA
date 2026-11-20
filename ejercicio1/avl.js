@@ -17,7 +17,9 @@ class NodoAVL {
 const altura = (n) => (n ? n.altura : 0);
 const fb = (n) => (n ? altura(n.izq) - altura(n.der) : 0);
 const actualizar = (n) => { n.altura = 1 + Math.max(altura(n.izq), altura(n.der)); };
-const comparar = (x, y) => x.localeCompare(y, 'es');
+// Mismo criterio que Levenshtein: "programacion" y "programación" son la misma clave.
+// sensitivity 'base' ignora tildes, pero distingue la ñ de la n.
+const comparar = (x, y) => x.localeCompare(y, 'es', { sensitivity: 'base' });
 
 function rotarDerecha(y) {
   const x = y.izq;
