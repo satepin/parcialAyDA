@@ -1,148 +1,254 @@
+// =====================================================================
 // PARTE C — Mediana y percentiles
+// =====================================================================
 //
-//  - Quickselect con partición de LOMUTO (U4, Reducir y Conquistar de tamaño variable)
-//  - Quickselect con partición de HOARE  (U4 / U5)
-//  - Merge Sort como baseline (U5, Divide y Conquista): ordena todo y lee la posición
-//  - Búsqueda binaria (U4) para validar los cuantiles sobre el arreglo ordenado
+//   - Quickselect con partición de LOMUTO  (U4, Reducir y Conquistar de tamaño variable)
+//   - Quickselect con partición de HOARE   (U4 / U5)
+//   - Merge Sort como referencia           (U5, Divide y Conquista): ordena todo
+//   - Búsqueda binaria                     (U4) para validar sobre el arreglo ordenado
 //
-// Las dos versiones de Quickselect son iterativas e in-place → memoria adicional O(1).
-// El pivote es aleatorio (con semilla, para que sea reproducible) salvo en los
-// experimentos de entradas adversas, donde se usa pivote fijo a propósito.
+// Las dos versiones de Quickselect son iterativas y trabajan sobre el mismo
+// arreglo (in-place) → memoria adicional O(1).
 //
-// Conteo: "comparaciones" = comparaciones entre elementos del arreglo;
-//         "swaps" = intercambios reales (i ≠ j).
+// El pivote es aleatorio (con semilla, para que sea reproducible), salvo en los
+// experimentos de entradas adversas, donde se usa un pivote fijo a propósito.
+//
+// Qué se cuenta:
+//   comparaciones = comparaciones entre elementos del arreglo
+//   swaps         = intercambios reales (de dos posiciones distintas)
 
-// ---------- Particiones ----------
-
-// Lomuto: pivote al final; i marca el límite de la zona "< pivote".
-// Resultado: [ < pivote | pivote | ≥ pivote ], devuelve la posición final del pivote.
-function particionLomuto(a, lo, hi, elegirPivote, c) {
-  const p = elegirPivote(lo, hi, 'lomuto');
-  if (p !== hi) { [a[p], a[hi]] = [a[hi], a[p]]; c.swaps++; }
-  const pivote = a[hi];
-  let i = lo;
-  for (let j = lo; j < hi; j++) {
-    c.comparaciones++;
-    if (a[j] < pivote) {
-      if (i !== j) { [a[i], a[j]] = [a[j], a[i]]; c.swaps++; }
-      i++;
-    }
-  }
-  if (i !== hi) { [a[i], a[hi]] = [a[hi], a[i]]; c.swaps++; }
-  return i;
+// Cuenta de operaciones de cada corrida.
+function nuevoContador() {
+  return { comparaciones: 0, swaps: 0, particiones: 0, movimientos: 0, memoriaExtra: 0 };
 }
 
-// Hoare: dos índices que avanzan desde los extremos y se detienen en elementos
-// del lado equivocado (incluidos los IGUALES al pivote), que se intercambian.
-// Resultado: a[lo..j] ≤ pivote ≤ a[j+1..hi]; devuelve j.
-function particionHoare(a, lo, hi, elegirPivote, c) {
-  const p = elegirPivote(lo, hi, 'hoare');
-  if (p !== lo) { [a[p], a[lo]] = [a[lo], a[p]]; c.swaps++; }
-  const pivote = a[lo];
-  let i = lo - 1;
-  let j = hi + 1;
+function intercambiar(arreglo, i, j, contador) {
+  if (i === j) return;
+  [arreglo[i], arreglo[j]] = [arreglo[j], arreglo[i]];
+  contador.swaps++;
+}
+
+// ---------------------------------------------------------------------
+// Elección del pivote
+// ---------------------------------------------------------------------
+// Cada función recibe el tramo [inicio, fin] y devuelve la posición del pivote.
+
+// Una posición al azar del tramo (con el generador con semilla).
+function pivoteAleatorio(aleatorio) {
+  return (inicio, fin) => inicio + Math.floor(aleatorio() * (fin - inicio + 1));
+}
+
+// Pivote fijo: el último elemento en Lomuto y el primero en Hoare (la versión
+// clásica de cada uno). Es el que se rompe con entradas ya ordenadas.
+function pivoteFijo(inicio, fin, tipoDeParticion) {
+  return tipoDeParticion === 'lomuto' ? fin : inicio;
+}
+
+// ---------------------------------------------------------------------
+// Particiones
+// ---------------------------------------------------------------------
+
+// LOMUTO: el pivote va al final. `limite` marca dónde termina la zona de los
+// menores al pivote. Al terminar el tramo queda así:
+//
+//     [ menores que el pivote | pivote | mayores o iguales ]
+//
+// Devuelve la posición final del pivote.
+function particionLomuto(arreglo, inicio, fin, elegirPivote, contador) {
+  intercambiar(arreglo, elegirPivote(inicio, fin, 'lomuto'), fin, contador);
+  const pivote = arreglo[fin];
+
+  let limite = inicio;
+  for (let j = inicio; j < fin; j++) {
+    contador.comparaciones++;
+    if (arreglo[j] < pivote) {
+      intercambiar(arreglo, limite, j, contador);
+      limite++;
+    }
+  }
+
+  intercambiar(arreglo, limite, fin, contador); // el pivote a su lugar
+  return limite;
+}
+
+// HOARE: dos índices avanzan desde los extremos hacia el centro. Cada uno se
+// detiene en un elemento que está del lado equivocado (también en los IGUALES
+// al pivote) y esos dos se intercambian. Al terminar:
+//
+//     arreglo[inicio..j] ≤ pivote ≤ arreglo[j+1..fin]
+//
+// Devuelve j.
+function particionHoare(arreglo, inicio, fin, elegirPivote, contador) {
+  intercambiar(arreglo, elegirPivote(inicio, fin, 'hoare'), inicio, contador);
+  const pivote = arreglo[inicio];
+
+  let i = inicio - 1;
+  let j = fin + 1;
   while (true) {
-    do { i++; c.comparaciones++; } while (a[i] < pivote);
-    do { j--; c.comparaciones++; } while (a[j] > pivote);
+    do {
+      i++;
+      contador.comparaciones++;
+    } while (arreglo[i] < pivote);
+
+    do {
+      j--;
+      contador.comparaciones++;
+    } while (arreglo[j] > pivote);
+
     if (i >= j) return j;
-    [a[i], a[j]] = [a[j], a[i]];
-    c.swaps++;
+    intercambiar(arreglo, i, j, contador);
   }
 }
 
-// ---------- Quickselect ----------
-// Deja en a[k] el elemento que estaría en la posición k si el arreglo estuviera
-// ordenado, con todo lo de la izquierda ≤ a[k] ≤ todo lo de la derecha.
-// Cada partición descarta un lado entero: en promedio n + n/2 + n/4 + ... ≈ 2n → O(n).
+// ---------------------------------------------------------------------
+// Quickselect
+// ---------------------------------------------------------------------
+// Deja en arreglo[k] el elemento que estaría en la posición k si el arreglo
+// estuviera ordenado, con todo lo de la izquierda ≤ y todo lo de la derecha ≥.
+//
+// Cada partición descarta el lado que no contiene la posición k. En promedio:
+//     n + n/2 + n/4 + … ≈ 2n  →  O(n)
 
-function quickselectLomuto(a, k, elegirPivote, c) {
-  let lo = 0, hi = a.length - 1;
-  while (lo < hi) {
-    c.particiones++;
-    const p = particionLomuto(a, lo, hi, elegirPivote, c);
-    if (k === p) break;
-    if (k < p) hi = p - 1; else lo = p + 1;
-  }
-  return a[k];
-}
+function quickselectLomuto(arreglo, k, elegirPivote, contador) {
+  let inicio = 0;
+  let fin = arreglo.length - 1;
 
-function quickselectHoare(a, k, elegirPivote, c) {
-  let lo = 0, hi = a.length - 1;
-  while (lo < hi) {
-    c.particiones++;
-    const j = particionHoare(a, lo, hi, elegirPivote, c);
-    if (k <= j) hi = j; else lo = j + 1;
-  }
-  return a[k];
-}
+  while (inicio < fin) {
+    contador.particiones++;
+    const posicionPivote = particionLomuto(arreglo, inicio, fin, elegirPivote, contador);
 
-// ---------- Merge Sort (baseline) ----------
-// Top-down con UN solo buffer auxiliar de n elementos (memoria adicional Θ(n)).
-// Es estable y siempre Θ(n log n), sin importar la entrada.
-function mergeSort(a, c) {
-  const aux = new Int32Array(a.length);
-  c.memoriaExtra = aux.byteLength;
-  function rec(lo, hi) {
-    if (lo >= hi) return;
-    const mid = (lo + hi) >> 1;
-    rec(lo, mid);
-    rec(mid + 1, hi);
-    // Si ya están en orden no hace falta mezclar
-    c.comparaciones++;
-    if (a[mid] <= a[mid + 1]) return;
-    for (let t = lo; t <= hi; t++) aux[t] = a[t];
-    c.movimientos += hi - lo + 1;
-    let i = lo, j = mid + 1;
-    for (let t = lo; t <= hi; t++) {
-      if (i > mid) a[t] = aux[j++];
-      else if (j > hi) a[t] = aux[i++];
-      else {
-        c.comparaciones++;
-        a[t] = aux[j] < aux[i] ? aux[j++] : aux[i++];
-      }
-      c.movimientos++;
+    if (k === posicionPivote) break; // el pivote quedó justo en k
+    if (k < posicionPivote) {
+      fin = posicionPivote - 1; // seguir por la izquierda
+    } else {
+      inicio = posicionPivote + 1; // seguir por la derecha
     }
   }
-  rec(0, a.length - 1);
-  return a;
+  return arreglo[k];
 }
 
-// ---------- Búsqueda binaria (validación) ----------
-// cuantosMenores(v)   = cantidad de elementos < v   (lower bound)
-// cuantosMenoresOIg(v)= cantidad de elementos ≤ v   (upper bound)
-// v es el k-ésimo menor (0-based) ⇔ cuantosMenores(v) ≤ k < cuantosMenoresOIg(v)
-function cuantosMenores(ord, v, c = { comparaciones: 0 }) {
-  let lo = 0, hi = ord.length;
-  while (lo < hi) {
-    const m = (lo + hi) >> 1;
-    c.comparaciones++;
-    if (ord[m] < v) lo = m + 1; else hi = m;
+function quickselectHoare(arreglo, k, elegirPivote, contador) {
+  let inicio = 0;
+  let fin = arreglo.length - 1;
+
+  while (inicio < fin) {
+    contador.particiones++;
+    const corte = particionHoare(arreglo, inicio, fin, elegirPivote, contador);
+
+    if (k <= corte) {
+      fin = corte; // k está en la parte izquierda
+    } else {
+      inicio = corte + 1; // k está en la parte derecha
+    }
   }
-  return lo;
+  return arreglo[k];
 }
 
-function cuantosMenoresOIg(ord, v, c = { comparaciones: 0 }) {
-  let lo = 0, hi = ord.length;
-  while (lo < hi) {
-    const m = (lo + hi) >> 1;
-    c.comparaciones++;
-    if (ord[m] <= v) lo = m + 1; else hi = m;
+// ---------------------------------------------------------------------
+// Merge Sort (referencia: ordenar todo)
+// ---------------------------------------------------------------------
+// Versión recursiva con UN solo buffer auxiliar de n elementos (memoria
+// adicional Θ(n)). Es estable y cuesta Θ(n log n) para cualquier entrada.
+function mergeSort(arreglo, contador) {
+  const auxiliar = new Int32Array(arreglo.length);
+  contador.memoriaExtra = auxiliar.byteLength;
+
+  function ordenar(inicio, fin) {
+    if (inicio >= fin) return;
+
+    const medio = Math.floor((inicio + fin) / 2);
+    ordenar(inicio, medio);
+    ordenar(medio + 1, fin);
+
+    // Si las dos mitades ya están en orden, no hace falta mezclarlas.
+    contador.comparaciones++;
+    if (arreglo[medio] <= arreglo[medio + 1]) return;
+
+    mezclar(inicio, medio, fin);
   }
-  return lo;
+
+  // Mezcla las mitades ordenadas [inicio..medio] y [medio+1..fin].
+  function mezclar(inicio, medio, fin) {
+    for (let t = inicio; t <= fin; t++) {
+      auxiliar[t] = arreglo[t];
+    }
+    contador.movimientos += fin - inicio + 1;
+
+    let izquierda = inicio;
+    let derecha = medio + 1;
+    for (let t = inicio; t <= fin; t++) {
+      if (izquierda > medio) {
+        arreglo[t] = auxiliar[derecha++]; //         se terminó la mitad izquierda
+      } else if (derecha > fin) {
+        arreglo[t] = auxiliar[izquierda++]; //       se terminó la mitad derecha
+      } else {
+        contador.comparaciones++;
+        if (auxiliar[derecha] < auxiliar[izquierda]) {
+          arreglo[t] = auxiliar[derecha++];
+        } else {
+          arreglo[t] = auxiliar[izquierda++]; //     ante empate, la izquierda (estable)
+        }
+      }
+      contador.movimientos++;
+    }
+  }
+
+  ordenar(0, arreglo.length - 1);
+  return arreglo;
 }
 
-// ---------- Convenciones ----------
-// Percentil p (rango más cercano, "nearest-rank"): el menor valor tal que al
-// menos el p % de los datos es ≤ a él → posición 0-based k = ⌈p·n/100⌉ − 1.
-const indicePercentil = (p, n) => Math.ceil((p * n) / 100) - 1;
+// ---------------------------------------------------------------------
+// Búsqueda binaria (para validar)
+// ---------------------------------------------------------------------
+// Sobre el arreglo ORDENADO:
+//   cantidadMenores(v)       = cuántos elementos son < v
+//   cantidadMenoresOIguales(v) = cuántos elementos son ≤ v
+// v está en la posición k (contando desde 0) ⇔ cantidadMenores(v) ≤ k < cantidadMenoresOIguales(v)
 
-// Pivotes
-const pivoteAleatorio = (rng) => (lo, hi) => lo + Math.floor(rng() * (hi - lo + 1));
-const pivoteFijo = (lo, hi, tipo) => (tipo === 'lomuto' ? hi : lo); // último (Lomuto) / primero (Hoare)
+function cantidadMenores(ordenado, valor, contador = { comparaciones: 0 }) {
+  return primeraPosicionQueNoCumple(ordenado, (x) => x < valor, contador);
+}
 
-const nuevoContador = () => ({ comparaciones: 0, swaps: 0, particiones: 0, movimientos: 0, memoriaExtra: 0 });
+function cantidadMenoresOIguales(ordenado, valor, contador = { comparaciones: 0 }) {
+  return primeraPosicionQueNoCumple(ordenado, (x) => x <= valor, contador);
+}
+
+// En un arreglo ordenado, los que cumplen la condición están todos al principio:
+// se busca dónde termina ese bloque partiendo el rango a la mitad cada vez.
+function primeraPosicionQueNoCumple(ordenado, cumple, contador) {
+  let desde = 0;
+  let hasta = ordenado.length;
+  while (desde < hasta) {
+    const medio = Math.floor((desde + hasta) / 2);
+    contador.comparaciones++;
+    if (cumple(ordenado[medio])) {
+      desde = medio + 1;
+    } else {
+      hasta = medio;
+    }
+  }
+  return desde;
+}
+
+// ---------------------------------------------------------------------
+// Convención de percentil
+// ---------------------------------------------------------------------
+// Percentil p por "rango más cercano": el menor valor tal que al menos el p %
+// de los datos es ≤ a él → posición k = ⌈p·n/100⌉ − 1 (contando desde 0).
+function posicionDelPercentil(p, n) {
+  return Math.ceil((p * n) / 100) - 1;
+}
 
 module.exports = {
-  particionLomuto, particionHoare, quickselectLomuto, quickselectHoare, mergeSort,
-  cuantosMenores, cuantosMenoresOIg, indicePercentil, pivoteAleatorio, pivoteFijo, nuevoContador,
+  nuevoContador,
+  pivoteAleatorio,
+  pivoteFijo,
+  particionLomuto,
+  particionHoare,
+  quickselectLomuto,
+  quickselectHoare,
+  mergeSort,
+  cantidadMenores,
+  cantidadMenoresOIguales,
+  posicionDelPercentil,
 };

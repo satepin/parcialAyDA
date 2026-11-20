@@ -1,26 +1,43 @@
-// Counting Sort (no comparativo) — Unidad 3 / TP3
+// =====================================================================
+// Counting Sort (ordenamiento por conteo, no comparativo) — Unidad 3 / TP3
+// =====================================================================
 //
-// Las distancias son enteros chicos (0..umbral), así que conviene contar en
-// lugar de comparar: O(n + k), con k = distancia máxima.
-// Esta versión es ESTABLE (recorre la entrada de atrás hacia adelante), por lo
-// que ante un empate se respeta el orden original del diccionario.
+// Las distancias son enteros chicos (de 0 al umbral), así que conviene contar
+// cuántas hay de cada una en lugar de comparar elementos: O(n + k), con
+// k = distancia máxima.
+//
+// Esta versión es ESTABLE: ante un empate se respeta el orden de entrada
+// (el orden del diccionario).
+//
+// obtenerClave(elemento) devuelve el número por el que se ordena.
 
-function countingSort(elementos, clave) {
+function countingSort(elementos, obtenerClave) {
   if (elementos.length === 0) return [];
-  const k = Math.max(...elementos.map(clave));
-  const conteo = new Array(k + 1).fill(0);
 
-  // 1. Contar cuántas veces aparece cada distancia
-  for (const e of elementos) conteo[clave(e)]++;
-  // 2. Acumular: conteo[d] = posición final (exclusiva) de la distancia d
-  for (let d = 1; d <= k; d++) conteo[d] += conteo[d - 1];
-  // 3. Ubicar cada elemento en su lugar (de atrás hacia adelante → estable)
-  const salida = new Array(elementos.length);
-  for (let i = elementos.length - 1; i >= 0; i--) {
-    const d = clave(elementos[i]);
-    salida[--conteo[d]] = elementos[i];
+  const claveMaxima = Math.max(...elementos.map(obtenerClave));
+  const conteo = new Array(claveMaxima + 1).fill(0);
+
+  // 1. Contar cuántos elementos hay con cada clave
+  for (const elemento of elementos) {
+    conteo[obtenerClave(elemento)]++;
   }
-  return salida;
+
+  // 2. Acumular: ahora conteo[c] = cuántos elementos tienen clave ≤ c,
+  //    es decir, la posición donde TERMINA el bloque de la clave c.
+  for (let clave = 1; clave <= claveMaxima; clave++) {
+    conteo[clave] += conteo[clave - 1];
+  }
+
+  // 3. Ubicar cada elemento al final de su bloque. Se recorre de atrás hacia
+  //    adelante para que los empates conserven su orden (estabilidad).
+  const ordenados = new Array(elementos.length);
+  for (let i = elementos.length - 1; i >= 0; i--) {
+    const clave = obtenerClave(elementos[i]);
+    conteo[clave]--;
+    ordenados[conteo[clave]] = elementos[i];
+  }
+
+  return ordenados;
 }
 
 module.exports = { countingSort };

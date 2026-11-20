@@ -1,84 +1,118 @@
+// =====================================================================
 // Algoritmo de Floyd-Warshall — Programación Dinámica (Unidad 7)
+// =====================================================================
 //
-// Camino mínimo entre TODOS los pares de vértices de un grafo dirigido y
-// ponderado. Admite pesos negativos, siempre que no haya ciclos negativos.
+// Calcula el camino mínimo entre TODOS los pares de vértices de un grafo
+// dirigido y ponderado. Admite pesos negativos, mientras no haya ciclos negativos.
 //
-// Idea (según la teoría): en la iteración k se pregunta, para cada par (i, j),
-// si "pasar por k" mejora el camino actual:
-//     D[i][j] = min( D[i][j], D[i][k] + D[k][j] )
+// Idea: en la iteración k se pregunta, para cada par (i, j), si "pasar por k"
+// mejora el camino que se conoce hasta ahora:
+//
+//     distancia[i][j] = min( distancia[i][j],  distancia[i][k] + distancia[k][j] )
 //
 // Matriz de reconstrucción (predecesores):
-//     P[i][j] = vértice anterior a j en el camino mínimo de i a j.
-// Para reconstruir el camino se recorre hacia atrás desde el destino:
-//     j, P[i][j], P[i][P[i][j]], ... hasta llegar a i.
+//     predecesor[i][j] = vértice anterior a j en el camino mínimo de i a j.
+// Para armar el camino se va hacia atrás desde el destino hasta llegar al origen.
 //
-// Ciclo negativo: si al terminar algún D[i][i] < 0, existe un ciclo de peso
+// Ciclo negativo: si al terminar algún distancia[i][i] < 0, hay un ciclo de peso
 // negativo que pasa por i (las distancias dejan de estar bien definidas).
 //
-// Complejidad: tiempo Θ(n³) (tres ciclos anidados), espacio Θ(n²).
+// Complejidad: tiempo Θ(n³) (tres ciclos anidados) y espacio Θ(n²).
+//
+// Los vértices se manejan por su número de posición (0, 1, 2, …) dentro de la
+// lista de vértices; SIN_CAMINO (∞) indica que todavía no se conoce un camino.
 
-const INF = Infinity;
+const SIN_CAMINO = Infinity;
 
-function matrizInicial(vertices, arcos) {
-  const n = vertices.length;
-  const idx = new Map(vertices.map((v, i) => [v, i]));
-  const D = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 0 : INF)));
-  const P = Array.from({ length: n }, () => new Array(n).fill(null));
-
-  for (const [u, v, w] of arcos) {
-    const i = idx.get(u);
-    const j = idx.get(v);
-    if (w < D[i][j]) {
-      D[i][j] = w;
-      P[i][j] = i; // el predecesor de j en el arco directo es i
-    }
+// Matriz de n × n con todas las celdas en `valorInicial`.
+function crearMatriz(n, valorInicial) {
+  const matriz = [];
+  for (let i = 0; i < n; i++) {
+    matriz.push(new Array(n).fill(valorInicial));
   }
-  return { D, P, idx };
+  return matriz;
 }
 
-// Devuelve D⁰, la matriz final, P final y el registro de cambios de cada k.
+// D⁰: la matriz de adyacencia ponderada. 0 en la diagonal, el peso del arco
+// si existe y ∞ si no hay conexión directa.
+function matricesIniciales(vertices, arcos) {
+  const n = vertices.length;
+  const posicion = new Map(vertices.map((vertice, i) => [vertice, i]));
+
+  const distancia = crearMatriz(n, SIN_CAMINO);
+  const predecesor = crearMatriz(n, null);
+  for (let i = 0; i < n; i++) {
+    distancia[i][i] = 0;
+  }
+
+  for (const [origen, destino, peso] of arcos) {
+    const i = posicion.get(origen);
+    const j = posicion.get(destino);
+    if (peso < distancia[i][j]) {
+      distancia[i][j] = peso;
+      predecesor[i][j] = i; // en un arco directo, el anterior a j es el propio i
+    }
+  }
+
+  return { distancia, predecesor, posicion };
+}
+
 function floydWarshall(vertices, arcos) {
   const n = vertices.length;
-  const { D, P, idx } = matrizInicial(vertices, arcos);
-  const D0 = D.map((fila) => [...fila]);
-  const iteraciones = [];
+  const { distancia, predecesor, posicion } = matricesIniciales(vertices, arcos);
+  const distanciaInicial = distancia.map((fila) => [...fila]); // copia de D⁰ para mostrarla
+  const iteraciones = []; // qué celdas cambió cada k, para mostrar el paso a paso
 
   for (let k = 0; k < n; k++) {
     const cambios = [];
+
     for (let i = 0; i < n; i++) {
-      if (D[i][k] === INF) continue;
       for (let j = 0; j < n; j++) {
-        if (D[k][j] === INF) continue;
-        const porK = D[i][k] + D[k][j];
-        if (porK < D[i][j]) {
-          cambios.push({ i, j, antes: D[i][j], dik: D[i][k], dkj: D[k][j], despues: porK });
-          D[i][j] = porK;
-          P[i][j] = P[k][j]; // el predecesor de j pasa a ser el del tramo k → j
+        const hastaK = distancia[i][k];
+        const desdeK = distancia[k][j];
+        if (hastaK === SIN_CAMINO || desdeK === SIN_CAMINO) continue;
+
+        const pasandoPorK = hastaK + desdeK;
+        if (pasandoPorK < distancia[i][j]) {
+          cambios.push({ i, j, antes: distancia[i][j], hastaK, desdeK, despues: pasandoPorK });
+          distancia[i][j] = pasandoPorK;
+          // El último tramo ahora es el de k a j: se copia su predecesor.
+          predecesor[i][j] = predecesor[k][j];
         }
       }
     }
+
     iteraciones.push({ k, cambios });
   }
 
-  const ciclosNegativos = vertices.filter((_, i) => D[i][i] < 0);
-  return { D0, D, P, idx, iteraciones, ciclosNegativos };
+  const verticesEnCicloNegativo = vertices.filter((_, i) => distancia[i][i] < 0);
+
+  return { distanciaInicial, distancia, predecesor, posicion, iteraciones, verticesEnCicloNegativo };
 }
 
-// Reconstruye el camino de origen a destino usando la matriz de predecesores.
-function reconstruirCamino(P, idx, vertices, origen, destino) {
-  const i = idx.get(origen);
-  let j = idx.get(destino);
-  if (i === j) return [origen];
-  if (P[i][j] === null) return null; // no hay camino
-  const camino = [vertices[j]];
+// Arma el camino de `origen` a `destino` yendo hacia atrás con los predecesores.
+// Devuelve null si no hay camino. `pasos` explica cada consulta a la matriz.
+function reconstruirCamino(predecesor, posicion, vertices, origen, destino) {
+  const i = posicion.get(origen);
+  let actual = posicion.get(destino);
+
+  if (i === actual) return { camino: [origen], pasos: [] };
+  if (predecesor[i][actual] === null) return null;
+
+  const camino = [vertices[actual]];
   const pasos = [];
-  while (j !== i) {
-    pasos.push(`P[${origen}][${vertices[j]}] = ${vertices[P[i][j]]}`);
-    j = P[i][j];
-    camino.unshift(vertices[j]);
-    if (camino.length > vertices.length + 1) return null; // protección ante ciclos negativos
+
+  while (actual !== i) {
+    const anterior = predecesor[i][actual];
+    pasos.push(`P[${origen}][${vertices[actual]}] = ${vertices[anterior]}`);
+    camino.unshift(vertices[anterior]);
+    actual = anterior;
+
+    // Protección: con un ciclo negativo el recorrido podría no terminar nunca.
+    if (camino.length > vertices.length + 1) return null;
   }
+
   return { camino, pasos };
 }
 
-module.exports = { INF, floydWarshall, reconstruirCamino };
+module.exports = { SIN_CAMINO, floydWarshall, reconstruirCamino };

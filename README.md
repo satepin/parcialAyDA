@@ -63,7 +63,10 @@ parcial/
     ├── sopa.png          # imagen de la sopa de letras de la consigna
     └── salida.txt        # salida completa del programa
 └── ejercicio4/           # Mejor período de utilidad (1.000.000 de datos)
-    ├── utilidad.js       # programa principal (exporta main()): partes A, B y C
+    ├── utilidad.js       # programa principal (exporta main()): carga los datos y corre A, B y C
+    ├── parteA.js         # parte A: mediciones, salida y gráfico del mejor período
+    ├── parteB.js         # parte B: top 10, costo y contraste con la PD
+    ├── parteC.js         # parte C: cuantiles, validación, reporte y entradas adversas
     ├── datos.js          # carga datos_1mill_n.txt en un Int32Array
     ├── datos_1mill_n.txt # P[0..n−1], un entero por línea
     ├── subarreglo.js     # Kadane, Divide y Conquista, Fuerza Bruta
@@ -77,6 +80,13 @@ parcial/
 
 Para agregar un ejercicio al menú: crear la carpeta `ejercicioN/` con un módulo que
 exporte `main()` y sumar una entrada en la lista `EJERCICIOS` de `index.js`.
+
+**Cómo está escrito el código.** Cada algoritmo está en su propio archivo, con un
+encabezado que explica la idea, la recurrencia o los pasos y la complejidad, tal como en
+la teoría. Los nombres son descriptivos (`matriz`, `letrasOrigen`, `distanciaAlNodo`,
+`posicionPivote`), hay una instrucción por línea y los programas principales están
+divididos en una función por paso de la consigna (`paso1BuscarEnElDiccionario`,
+`mostrarCiclosNegativos`, `validarConBusquedaBinaria`…).
 
 ## Ejercicios
 

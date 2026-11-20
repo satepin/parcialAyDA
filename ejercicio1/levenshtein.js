@@ -1,99 +1,200 @@
-// Distancia de Levenshtein — Programación Dinámica (Unidad 7), versión TABULACIÓN (bottom-up)
+// =====================================================================
+// Distancia de Levenshtein — Programación Dinámica (Unidad 7)
+// =====================================================================
 //
-// Pasos de PD (según la teoría):
-//  1. Estado:     D[i][j] = mínimo de operaciones para transformar los primeros i
-//                 caracteres del origen en los primeros j caracteres del destino.
-//  2. Casos base: D[i][0] = i  (borrar i letras)   ("gato" → "" : 4 borrados)
-//                 D[0][j] = j  (insertar j letras) (""     → "pato": 4 inserciones)
-//  3. Recurrencia (miramos los tres vecinos y elegimos el mínimo):
-//       ↑ arriba    D[i-1][j]   + 1  → BORRAR
-//       ← izquierda D[i][j-1]   + 1  → INSERTAR
-//       ↖ diagonal  D[i-1][j-1] + 0  si las letras son iguales (se copia la diagonal)
-//                   D[i-1][j-1] + 1  si son distintas → SUSTITUIR
-//  4. Respuesta:  D[m][n] (última celda) y reconstrucción del camino hacia atrás.
+// La distancia de Levenshtein es la cantidad mínima de operaciones
+// (insertar, borrar o sustituir una letra) para convertir una palabra en otra.
 //
-// Complejidad: tiempo O(m·n), espacio O(m·n) (la matriz completa es necesaria
-// para reconstruir el camino).
-
-// "ó" como un solo carácter (NFC) y recorrido por caracteres, no por unidades UTF-16.
-const chars = (s) => Array.from(s.normalize('NFC'));
-
+// Se resuelve con PROGRAMACIÓN DINÁMICA por TABULACIÓN (de abajo hacia arriba):
+//
+//   1. Estado:      matriz[i][j] = distancia entre las primeras i letras del
+//                   origen y las primeras j letras del destino.
+//
+//   2. Casos base:  matriz[i][0] = i   (para llegar a "" hay que borrar i letras)
+//                   matriz[0][j] = j   (desde "" hay que insertar j letras)
+//
+//   3. Recurrencia: se miran los tres vecinos ya calculados y se elige el menor.
+//        ↑ arriba     matriz[i-1][j]   + 1   → BORRAR
+//        ← izquierda  matriz[i][j-1]   + 1   → INSERTAR
+//        ↖ diagonal   matriz[i-1][j-1] + 0   si las letras son iguales
+//                     matriz[i-1][j-1] + 1   si son distintas → SUSTITUIR
+//
+//   4. Respuesta:   la última celda, matriz[m][n]. Después se reconstruye el
+//                   camino óptimo desde esa celda hasta matriz[0][0].
+//
+// Complejidad: tiempo O(m·n) y espacio O(m·n). La matriz completa se guarda
+// porque hace falta para reconstruir el camino.
+//
 // Criterio de la consigna: las vocales con tilde cuentan igual que sin tilde
-// (ó = o, á = a, ...). La ñ NO se modifica: en castellano es otra letra.
-const SIN_TILDE = { á: 'a', é: 'e', í: 'i', ó: 'o', ú: 'u', ü: 'u', Á: 'A', É: 'E', Í: 'I', Ó: 'O', Ú: 'U', Ü: 'U' };
-const base = (c) => SIN_TILDE[c] ?? c;
-const normalizar = (s) => chars(s).map(base).join('');
+// (ó = o, á = a, …). La ñ NO se modifica, porque en castellano es otra letra.
 
+const VOCAL_SIN_TILDE = {
+  á: 'a', é: 'e', í: 'i', ó: 'o', ú: 'u', ü: 'u',
+  Á: 'A', É: 'E', Í: 'I', Ó: 'O', Ú: 'U', Ü: 'U',
+};
+
+// Separa una palabra en letras. normalize('NFC') hace que "ó" sea UNA letra
+// (y no una "o" más un acento suelto).
+function separarEnLetras(palabra) {
+  return Array.from(palabra.normalize('NFC'));
+}
+
+// Devuelve la letra sin tilde: 'ó' → 'o'. Las demás letras quedan igual.
+function sinTilde(letra) {
+  return VOCAL_SIN_TILDE[letra] ?? letra;
+}
+
+// Dos letras son iguales si coinciden ignorando la tilde.
+function sonIguales(letraA, letraB) {
+  return sinTilde(letraA) === sinTilde(letraB);
+}
+
+function normalizar(palabra) {
+  return separarEnLetras(palabra).map(sinTilde).join('');
+}
+
+// ---------------------------------------------------------------------
+// Construcción de la matriz completa
+// ---------------------------------------------------------------------
+// Devuelve la matriz y las letras de cada palabra (con su tilde original,
+// para poder mostrarlas; solo la comparación la ignora).
 function construirMatriz(origen, destino) {
-  // a y b conservan las letras originales (para mostrar la matriz);
-  // la comparación se hace sobre las letras sin tilde.
-  const a = chars(origen);
-  const b = chars(destino);
-  const an = a.map(base);
-  const bn = b.map(base);
-  const m = a.length;
-  const n = b.length;
-  const D = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  const letrasOrigen = separarEnLetras(origen);
+  const letrasDestino = separarEnLetras(destino);
+  const filas = letrasOrigen.length;
+  const columnas = letrasDestino.length;
 
-  for (let i = 0; i <= m; i++) D[i][0] = i;
-  for (let j = 0; j <= n; j++) D[0][j] = j;
+  // Matriz de (filas + 1) × (columnas + 1), con una fila y una columna extra
+  // para la palabra vacía "".
+  const matriz = [];
+  for (let i = 0; i <= filas; i++) {
+    matriz.push(new Array(columnas + 1).fill(0));
+  }
 
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      const costo = an[i - 1] === bn[j - 1] ? 0 : 1;
-      D[i][j] = Math.min(
-        D[i - 1][j] + 1, //        ↑ borrar
-        D[i][j - 1] + 1, //        ← insertar
-        D[i - 1][j - 1] + costo // ↖ sustituir / coincidencia
-      );
+  // Casos base
+  for (let i = 0; i <= filas; i++) {
+    matriz[i][0] = i;
+  }
+  for (let j = 0; j <= columnas; j++) {
+    matriz[0][j] = j;
+  }
+
+  // Relleno, fila por fila, aplicando la recurrencia
+  for (let i = 1; i <= filas; i++) {
+    for (let j = 1; j <= columnas; j++) {
+      const costoSustitucion = sonIguales(letrasOrigen[i - 1], letrasDestino[j - 1]) ? 0 : 1;
+
+      const porBorrado = matriz[i - 1][j] + 1; //                   ↑
+      const porInsercion = matriz[i][j - 1] + 1; //                 ←
+      const porSustitucion = matriz[i - 1][j - 1] + costoSustitucion; // ↖
+
+      matriz[i][j] = Math.min(porBorrado, porInsercion, porSustitucion);
     }
   }
-  return { D, a, b };
+
+  return { matriz, letrasOrigen, letrasDestino };
 }
 
-// Solo la distancia (la usan el BK-Tree y la búsqueda exhaustiva).
+// Solo la distancia (la usa el BK-Tree, que no necesita el camino).
 function distancia(origen, destino) {
-  const { D, a, b } = construirMatriz(origen, destino);
-  return D[a.length][b.length];
+  const { matriz, letrasOrigen, letrasDestino } = construirMatriz(origen, destino);
+  return matriz[letrasOrigen.length][letrasDestino.length];
 }
 
-// Reconstruye el camino óptimo desde D[m][n] hasta D[0][0].
-// En cada celda se busca qué vecino explica su valor (prioridad ↖, ↑, ←).
-// Devuelve las operaciones en el orden en que se aplican (de izquierda a derecha).
-function reconstruirCamino(D, a, b) {
-  let i = a.length;
-  let j = b.length;
+// ---------------------------------------------------------------------
+// Reconstrucción del camino óptimo
+// ---------------------------------------------------------------------
+// Se parte de la última celda y, en cada paso, se busca qué vecino explica el
+// valor de la celda actual (se prueba primero la diagonal, después arriba y
+// por último la izquierda). Cada paso corresponde a una operación.
+//
+// Devuelve:
+//   - operaciones: en el orden en que se aplican (de la primera letra a la última)
+//   - camino: las celdas recorridas, desde (0,0) hasta (m,n)
+function reconstruirCamino(matriz, letrasOrigen, letrasDestino) {
+  let i = letrasOrigen.length;
+  let j = letrasDestino.length;
   const camino = [[i, j]];
-  const ops = [];
+  const operaciones = [];
 
   while (i > 0 || j > 0) {
-    if (i > 0 && j > 0) {
-      const costo = base(a[i - 1]) === base(b[j - 1]) ? 0 : 1;
-      if (D[i][j] === D[i - 1][j - 1] + costo) {
-        const tilde = costo === 0 && a[i - 1] !== b[j - 1] ? ', se ignora la tilde' : '';
-        ops.push(
-          costo === 0
-            ? { tipo: 'coincidencia', flecha: '↖', desc: `'${a[i - 1]}' = '${b[j - 1]}' (se copia la diagonal${tilde})`, costo: 0, tilde: !!tilde }
-            : { tipo: 'sustitución', flecha: '↖', desc: `'${a[i - 1]}' → '${b[j - 1]}' (posición ${i})`, costo: 1 }
-        );
-        i--; j--;
-        camino.push([i, j]);
-        continue;
+    const letraOrigen = letrasOrigen[i - 1];
+    const letraDestino = letrasDestino[j - 1];
+
+    if (vieneDeLaDiagonal(matriz, i, j, letraOrigen, letraDestino)) {
+      if (sonIguales(letraOrigen, letraDestino)) {
+        operaciones.push(coincidencia(letraOrigen, letraDestino));
+      } else {
+        operaciones.push(sustitucion(letraOrigen, letraDestino, i));
       }
-    }
-    if (i > 0 && D[i][j] === D[i - 1][j] + 1) {
-      ops.push({ tipo: 'eliminación', flecha: '↑', desc: `borrar '${a[i - 1]}' (posición ${i})`, costo: 1 });
+      i--;
+      j--;
+    } else if (vieneDeArriba(matriz, i, j)) {
+      operaciones.push(borrado(letraOrigen, i));
       i--;
     } else {
-      ops.push({ tipo: 'inserción', flecha: '←', desc: `insertar '${b[j - 1]}' (después de la posición ${i})`, costo: 1 });
+      operaciones.push(insercion(letraDestino, i));
       j--;
     }
     camino.push([i, j]);
   }
 
-  ops.reverse();
+  // Se reconstruyó de atrás hacia adelante: se invierte para leerlo en orden.
+  operaciones.reverse();
   camino.reverse();
-  return { ops, camino };
+  return { operaciones, camino };
 }
 
-module.exports = { chars, normalizar, construirMatriz, distancia, reconstruirCamino };
+function vieneDeLaDiagonal(matriz, i, j, letraOrigen, letraDestino) {
+  if (i === 0 || j === 0) return false;
+  const costo = sonIguales(letraOrigen, letraDestino) ? 0 : 1;
+  return matriz[i][j] === matriz[i - 1][j - 1] + costo;
+}
+
+function vieneDeArriba(matriz, i, j) {
+  return i > 0 && matriz[i][j] === matriz[i - 1][j] + 1;
+}
+
+// --- Descripción de cada operación ---
+
+function coincidencia(letraOrigen, letraDestino) {
+  const ignoraTilde = letraOrigen !== letraDestino; // 'ó' frente a 'o'
+  const aclaracion = ignoraTilde ? ', se ignora la tilde' : '';
+  return {
+    tipo: 'coincidencia',
+    flecha: '↖',
+    letras: `'${letraOrigen}' = '${letraDestino}'`,
+    descripcion: `'${letraOrigen}' = '${letraDestino}' (se copia la diagonal${aclaracion})`,
+    costo: 0,
+    ignoraTilde,
+  };
+}
+
+function sustitucion(letraOrigen, letraDestino, posicion) {
+  return {
+    tipo: 'sustitución',
+    flecha: '↖',
+    descripcion: `'${letraOrigen}' → '${letraDestino}' (posición ${posicion})`,
+    costo: 1,
+  };
+}
+
+function borrado(letra, posicion) {
+  return {
+    tipo: 'eliminación',
+    flecha: '↑',
+    descripcion: `borrar '${letra}' (posición ${posicion})`,
+    costo: 1,
+  };
+}
+
+function insercion(letra, posicion) {
+  return {
+    tipo: 'inserción',
+    flecha: '←',
+    descripcion: `insertar '${letra}' (después de la posición ${posicion})`,
+    costo: 1,
+  };
+}
+
+module.exports = { separarEnLetras, normalizar, construirMatriz, distancia, reconstruirCamino };
