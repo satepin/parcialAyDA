@@ -1,0 +1,194 @@
+Palabra a corregir: "programaceón"
+
+======================================================================
+"programaceón" → "programación"   distancia = 1
+======================================================================
+           p   r   o   g   r   a   m   a   c   i   ó   n
+   ε [0]   1   2   3   4   5   6   7   8   9  10  11  12
+   p   1 [0]   1   2   3   4   5   6   7   8   9  10  11
+   r   2   1 [0]   1   2   3   4   5   6   7   8   9  10
+   o   3   2   1 [0]   1   2   3   4   5   6   7   8   9
+   g   4   3   2   1 [0]   1   2   3   4   5   6   7   8
+   r   5   4   3   2   1 [0]   1   2   3   4   5   6   7
+   a   6   5   4   3   2   1 [0]   1   2   3   4   5   6
+   m   7   6   5   4   3   2   1 [0]   1   2   3   4   5
+   a   8   7   6   5   4   3   2   1 [0]   1   2   3   4
+   c   9   8   7   6   5   4   3   2   1 [0]   1   2   3
+   e  10   9   8   7   6   5   4   3   2   1 [1]   2   3
+   ó  11  10   9   8   7   6   5   4   3   2   2 [1]   2
+   n  12  11  10   9   8   7   6   5   4   3   3   2 [1]
+  (entre corchetes: celdas del camino óptimo)
+
+Camino óptimo (de (0,0) a (m,n)):
+  (0,0) → (1,1) → (2,2) → (3,3) → (4,4) → (5,5) → (6,6) → (7,7) → (8,8) → (9,9) → (10,10) → (11,11) → (12,12)
+
+Operaciones, en orden:
+  1. SUSTITUCIÓN: 'e' → 'i' (posición 10)  (+1)
+  Coincidencias (costo 0): 11
+
+======================================================================
+"programaceón" → "programador"   distancia = 4
+======================================================================
+           p   r   o   g   r   a   m   a   d   o   r
+   ε [0]   1   2   3   4   5   6   7   8   9  10  11
+   p   1 [0]   1   2   3   4   5   6   7   8   9  10
+   r   2   1 [0]   1   2   3   4   5   6   7   8   9
+   o   3   2   1 [0]   1   2   3   4   5   6   7   8
+   g   4   3   2   1 [0]   1   2   3   4   5   6   7
+   r   5   4   3   2   1 [0]   1   2   3   4   5   6
+   a   6   5   4   3   2   1 [0]   1   2   3   4   5
+   m   7   6   5   4   3   2   1 [0]   1   2   3   4
+   a   8   7   6   5   4   3   2   1 [0]   1   2   3
+   c   9   8   7   6   5   4   3   2 [1]   1   2   3
+   e  10   9   8   7   6   5   4   3   2 [2]   2   3
+   ó  11  10   9   8   7   6   5   4   3   3 [3]   3
+   n  12  11  10   9   8   7   6   5   4   4   4 [4]
+  (entre corchetes: celdas del camino óptimo)
+
+Camino óptimo (de (0,0) a (m,n)):
+  (0,0) → (1,1) → (2,2) → (3,3) → (4,4) → (5,5) → (6,6) → (7,7) → (8,8) → (9,8) → (10,9) → (11,10) → (12,11)
+
+Operaciones, en orden:
+  1. ELIMINACIÓN: eliminar 'c' (posición 9)  (+1)
+  2. SUSTITUCIÓN: 'e' → 'd' (posición 10)  (+1)
+  3. SUSTITUCIÓN: 'ó' → 'o' (posición 11)  (+1)
+  4. SUSTITUCIÓN: 'n' → 'r' (posición 12)  (+1)
+  Coincidencias (costo 0): 8
+
+======================================================================
+"programaceón" → "programaciónes"   distancia = 3
+======================================================================
+           p   r   o   g   r   a   m   a   c   i   ó   n   e   s
+   ε [0]   1   2   3   4   5   6   7   8   9  10  11  12  13  14
+   p   1 [0]   1   2   3   4   5   6   7   8   9  10  11  12  13
+   r   2   1 [0]   1   2   3   4   5   6   7   8   9  10  11  12
+   o   3   2   1 [0]   1   2   3   4   5   6   7   8   9  10  11
+   g   4   3   2   1 [0]   1   2   3   4   5   6   7   8   9  10
+   r   5   4   3   2   1 [0]   1   2   3   4   5   6   7   8   9
+   a   6   5   4   3   2   1 [0]   1   2   3   4   5   6   7   8
+   m   7   6   5   4   3   2   1 [0]   1   2   3   4   5   6   7
+   a   8   7   6   5   4   3   2   1 [0]   1   2   3   4   5   6
+   c   9   8   7   6   5   4   3   2   1 [0]   1   2   3   4   5
+   e  10   9   8   7   6   5   4   3   2   1 [1]   2   3   3   4
+   ó  11  10   9   8   7   6   5   4   3   2   2 [1]   2   3   4
+   n  12  11  10   9   8   7   6   5   4   3   3   2 [1] [2] [3]
+  (entre corchetes: celdas del camino óptimo)
+
+Camino óptimo (de (0,0) a (m,n)):
+  (0,0) → (1,1) → (2,2) → (3,3) → (4,4) → (5,5) → (6,6) → (7,7) → (8,8) → (9,9) → (10,10) → (11,11) → (12,12) → (12,13) → (12,14)
+
+Operaciones, en orden:
+  1. SUSTITUCIÓN: 'e' → 'i' (posición 10)  (+1)
+  2. INSERCIÓN: insertar 'e' (después de la posición 12)  (+1)
+  3. INSERCIÓN: insertar 's' (después de la posición 12)  (+1)
+  Coincidencias (costo 0): 11
+
+======================================================================
+"programaceón" → "programaciónal"   distancia = 3
+======================================================================
+           p   r   o   g   r   a   m   a   c   i   ó   n   a   l
+   ε [0]   1   2   3   4   5   6   7   8   9  10  11  12  13  14
+   p   1 [0]   1   2   3   4   5   6   7   8   9  10  11  12  13
+   r   2   1 [0]   1   2   3   4   5   6   7   8   9  10  11  12
+   o   3   2   1 [0]   1   2   3   4   5   6   7   8   9  10  11
+   g   4   3   2   1 [0]   1   2   3   4   5   6   7   8   9  10
+   r   5   4   3   2   1 [0]   1   2   3   4   5   6   7   8   9
+   a   6   5   4   3   2   1 [0]   1   2   3   4   5   6   7   8
+   m   7   6   5   4   3   2   1 [0]   1   2   3   4   5   6   7
+   a   8   7   6   5   4   3   2   1 [0]   1   2   3   4   5   6
+   c   9   8   7   6   5   4   3   2   1 [0]   1   2   3   4   5
+   e  10   9   8   7   6   5   4   3   2   1 [1]   2   3   4   5
+   ó  11  10   9   8   7   6   5   4   3   2   2 [1]   2   3   4
+   n  12  11  10   9   8   7   6   5   4   3   3   2 [1] [2] [3]
+  (entre corchetes: celdas del camino óptimo)
+
+Camino óptimo (de (0,0) a (m,n)):
+  (0,0) → (1,1) → (2,2) → (3,3) → (4,4) → (5,5) → (6,6) → (7,7) → (8,8) → (9,9) → (10,10) → (11,11) → (12,12) → (12,13) → (12,14)
+
+Operaciones, en orden:
+  1. SUSTITUCIÓN: 'e' → 'i' (posición 10)  (+1)
+  2. INSERCIÓN: insertar 'a' (después de la posición 12)  (+1)
+  3. INSERCIÓN: insertar 'l' (después de la posición 12)  (+1)
+  Coincidencias (costo 0): 11
+
+======================================================================
+"programaceón" → "programación web"   distancia = 5
+======================================================================
+           p   r   o   g   r   a   m   a   c   i   ó   n       w   e   b
+   ε [0]   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16
+   p   1 [0]   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+   r   2   1 [0]   1   2   3   4   5   6   7   8   9  10  11  12  13  14
+   o   3   2   1 [0]   1   2   3   4   5   6   7   8   9  10  11  12  13
+   g   4   3   2   1 [0]   1   2   3   4   5   6   7   8   9  10  11  12
+   r   5   4   3   2   1 [0]   1   2   3   4   5   6   7   8   9  10  11
+   a   6   5   4   3   2   1 [0]   1   2   3   4   5   6   7   8   9  10
+   m   7   6   5   4   3   2   1 [0]   1   2   3   4   5   6   7   8   9
+   a   8   7   6   5   4   3   2   1 [0]   1   2   3   4   5   6   7   8
+   c   9   8   7   6   5   4   3   2   1 [0]   1   2   3   4   5   6   7
+   e  10   9   8   7   6   5   4   3   2   1 [1]   2   3   4   5   5   6
+   ó  11  10   9   8   7   6   5   4   3   2   2 [1]   2   3   4   5   6
+   n  12  11  10   9   8   7   6   5   4   3   3   2 [1] [2] [3] [4] [5]
+  (entre corchetes: celdas del camino óptimo)
+
+Camino óptimo (de (0,0) a (m,n)):
+  (0,0) → (1,1) → (2,2) → (3,3) → (4,4) → (5,5) → (6,6) → (7,7) → (8,8) → (9,9) → (10,10) → (11,11) → (12,12) → (12,13) → (12,14) → (12,15) → (12,16)
+
+Operaciones, en orden:
+  1. SUSTITUCIÓN: 'e' → 'i' (posición 10)  (+1)
+  2. INSERCIÓN: insertar ' ' (después de la posición 12)  (+1)
+  3. INSERCIÓN: insertar 'w' (después de la posición 12)  (+1)
+  4. INSERCIÓN: insertar 'e' (después de la posición 12)  (+1)
+  5. INSERCIÓN: insertar 'b' (después de la posición 12)  (+1)
+  Coincidencias (costo 0): 11
+
+======================================================================
+"programaceón" → "probabilístico"   distancia = 11
+======================================================================
+           p   r   o   b   a   b   i   l   í   s   t   i   c   o
+   ε [0]   1   2   3   4   5   6   7   8   9  10  11  12  13  14
+   p   1 [0]   1   2   3   4   5   6   7   8   9  10  11  12  13
+   r   2   1 [0]   1   2   3   4   5   6   7   8   9  10  11  12
+   o   3   2   1 [0] [1] [2]   3   4   5   6   7   8   9  10  11
+   g   4   3   2   1   1   2 [3]   4   5   6   7   8   9  10  11
+   r   5   4   3   2   2   2   3 [4]   5   6   7   8   9  10  11
+   a   6   5   4   3   3   2   3   4 [5]   6   7   8   9  10  11
+   m   7   6   5   4   4   3   3   4   5 [6]   7   8   9  10  11
+   a   8   7   6   5   5   4   4   4   5   6 [7]   8   9  10  11
+   c   9   8   7   6   6   5   5   5   5   6   7 [8]   9   9  10
+   e  10   9   8   7   7   6   6   6   6   6   7   8 [9]  10  10
+   ó  11  10   9   8   8   7   7   7   7   7   7   8   9[10]  11
+   n  12  11  10   9   9   8   8   8   8   8   8   8   9  10[11]
+  (entre corchetes: celdas del camino óptimo)
+
+Camino óptimo (de (0,0) a (m,n)):
+  (0,0) → (1,1) → (2,2) → (3,3) → (3,4) → (3,5) → (4,6) → (5,7) → (6,8) → (7,9) → (8,10) → (9,11) → (10,12) → (11,13) → (12,14)
+
+Operaciones, en orden:
+  1. INSERCIÓN: insertar 'b' (después de la posición 3)  (+1)
+  2. INSERCIÓN: insertar 'a' (después de la posición 3)  (+1)
+  3. SUSTITUCIÓN: 'g' → 'b' (posición 4)  (+1)
+  4. SUSTITUCIÓN: 'r' → 'i' (posición 5)  (+1)
+  5. SUSTITUCIÓN: 'a' → 'l' (posición 6)  (+1)
+  6. SUSTITUCIÓN: 'm' → 'í' (posición 7)  (+1)
+  7. SUSTITUCIÓN: 'a' → 's' (posición 8)  (+1)
+  8. SUSTITUCIÓN: 'c' → 't' (posición 9)  (+1)
+  9. SUSTITUCIÓN: 'e' → 'i' (posición 10)  (+1)
+  10. SUSTITUCIÓN: 'ó' → 'c' (posición 11)  (+1)
+  11. SUSTITUCIÓN: 'n' → 'o' (posición 12)  (+1)
+  Coincidencias (costo 0): 3
+
+======================================================================
+Resumen de distancias
+======================================================================
+  ✔ programación       1
+  ✘ programador        4
+  ✔ programaciónes     3
+  ✔ programaciónal     3
+  ✘ programación web   5
+  ✘ probabilístico     11
+
+¿Quisiste decir?
+
+1. programación (distancia = 1)
+2. programaciónes (distancia = 3)
+3. programaciónal (distancia = 3)
