@@ -1,0 +1,375 @@
+
+========================================================================
+GRAFO — vértices y arcos (ver grafo.png)
+========================================================================
+Vértices (13): A, B, C, D, E, H, I, J, K, L, M, O, P
+Arcos dirigidos (un solo sentido):
+  D→B (-2)   K→E (-1)   L→K (-2)   I→C (-2)   P→O (-3)
+Aristas con flecha en ambos extremos (ida y vuelta, mismo peso):
+  A↔B (5)   B↔E (4)   B↔C (3)   D↔E (3)   D↔H (3)   H↔K (2)   H↔M (3)   K↔O (3)   E↔L (5)   C↔L (7)   E↔P (7)   O↔I (6)   I↔J (2)   A↔J (5)   J↔P (6)
+Total de arcos dirigidos: 35
+
+========================================================================
+MATRIZ INICIAL D⁰ (matriz de adyacencia ponderada)
+========================================================================
+       A   B   C   D   E   H   I   J   K   L   M   O   P
+   A   0   5   ∞   ∞   ∞   ∞   ∞   5   ∞   ∞   ∞   ∞   ∞
+   B   5   0   3   ∞   4   ∞   ∞   ∞   ∞   ∞   ∞   ∞   ∞
+   C   ∞   3   0   ∞   ∞   ∞   ∞   ∞   ∞   7   ∞   ∞   ∞
+   D   ∞  -2   ∞   0   3   3   ∞   ∞   ∞   ∞   ∞   ∞   ∞
+   E   ∞   4   ∞   3   0   ∞   ∞   ∞   ∞   5   ∞   ∞   7
+   H   ∞   ∞   ∞   3   ∞   0   ∞   ∞   2   ∞   3   ∞   ∞
+   I   ∞   ∞  -2   ∞   ∞   ∞   0   2   ∞   ∞   ∞   6   ∞
+   J   5   ∞   ∞   ∞   ∞   ∞   2   0   ∞   ∞   ∞   ∞   6
+   K   ∞   ∞   ∞   ∞  -1   2   ∞   ∞   0   ∞   ∞   3   ∞
+   L   ∞   ∞   7   ∞   5   ∞   ∞   ∞  -2   0   ∞   ∞   ∞
+   M   ∞   ∞   ∞   ∞   ∞   3   ∞   ∞   ∞   ∞   0   ∞   ∞
+   O   ∞   ∞   ∞   ∞   ∞   ∞   6   ∞   3   ∞   ∞   0   ∞
+   P   ∞   ∞   ∞   ∞   7   ∞   ∞   6   ∞   ∞   ∞  -3   0
+
+========================================================================
+ITERACIONES — D[i][j] = min( D[i][j], D[i][k] + D[k][j] )
+========================================================================
+
+k = 1 (nodo intermedio A): 2 cambio(s)
+  B→J: B→A→J = min(∞, 5 + 5) = 10
+  J→B: J→A→B = min(∞, 5 + 5) = 10
+
+k = 2 (nodo intermedio B): 14 cambio(s)
+  A→C: A→B→C = min(∞, 5 + 3) = 8
+  A→E: A→B→E = min(∞, 5 + 4) = 9
+  C→A: C→B→A = min(∞, 3 + 5) = 8
+  C→E: C→B→E = min(∞, 3 + 4) = 7
+  C→J: C→B→J = min(∞, 3 + 10) = 13
+  D→A: D→B→A = min(∞, -2 + 5) = 3
+  D→C: D→B→C = min(∞, -2 + 3) = 1
+  D→E: D→B→E = min(3, -2 + 4) = 2
+  D→J: D→B→J = min(∞, -2 + 10) = 8
+  E→A: E→B→A = min(∞, 4 + 5) = 9
+  E→C: E→B→C = min(∞, 4 + 3) = 7
+  E→J: E→B→J = min(∞, 4 + 10) = 14
+  J→C: J→B→C = min(∞, 10 + 3) = 13
+  J→E: J→B→E = min(∞, 10 + 4) = 14
+
+k = 3 (nodo intermedio C): 11 cambio(s)
+  A→L: A→C→L = min(∞, 8 + 7) = 15
+  B→L: B→C→L = min(∞, 3 + 7) = 10
+  D→L: D→C→L = min(∞, 1 + 7) = 8
+  I→A: I→C→A = min(∞, -2 + 8) = 6
+  I→B: I→C→B = min(∞, -2 + 3) = 1
+  I→E: I→C→E = min(∞, -2 + 7) = 5
+  I→L: I→C→L = min(∞, -2 + 7) = 5
+  J→L: J→C→L = min(∞, 13 + 7) = 20
+  L→A: L→C→A = min(∞, 7 + 8) = 15
+  L→B: L→C→B = min(∞, 7 + 3) = 10
+  L→J: L→C→J = min(∞, 7 + 13) = 20
+
+k = 4 (nodo intermedio D): 11 cambio(s)
+  E→A: E→D→A = min(9, 3 + 3) = 6
+  E→B: E→D→B = min(4, 3 + -2) = 1
+  E→C: E→D→C = min(7, 3 + 1) = 4
+  E→H: E→D→H = min(∞, 3 + 3) = 6
+  E→J: E→D→J = min(14, 3 + 8) = 11
+  H→A: H→D→A = min(∞, 3 + 3) = 6
+  H→B: H→D→B = min(∞, 3 + -2) = 1
+  H→C: H→D→C = min(∞, 3 + 1) = 4
+  H→E: H→D→E = min(∞, 3 + 2) = 5
+  H→J: H→D→J = min(∞, 3 + 8) = 11
+  H→L: H→D→L = min(∞, 3 + 8) = 11
+
+k = 5 (nodo intermedio E): 40 cambio(s)
+  A→D: A→E→D = min(∞, 9 + 3) = 12
+  A→H: A→E→H = min(∞, 9 + 6) = 15
+  A→L: A→E→L = min(15, 9 + 5) = 14
+  A→P: A→E→P = min(∞, 9 + 7) = 16
+  B→D: B→E→D = min(∞, 4 + 3) = 7
+  B→H: B→E→H = min(∞, 4 + 6) = 10
+  B→L: B→E→L = min(10, 4 + 5) = 9
+  B→P: B→E→P = min(∞, 4 + 7) = 11
+  C→D: C→E→D = min(∞, 7 + 3) = 10
+  C→H: C→E→H = min(∞, 7 + 6) = 13
+  C→P: C→E→P = min(∞, 7 + 7) = 14
+  D→L: D→E→L = min(8, 2 + 5) = 7
+  D→P: D→E→P = min(∞, 2 + 7) = 9
+  H→L: H→E→L = min(11, 5 + 5) = 10
+  H→P: H→E→P = min(∞, 5 + 7) = 12
+  I→D: I→E→D = min(∞, 5 + 3) = 8
+  I→H: I→E→H = min(∞, 5 + 6) = 11
+  I→P: I→E→P = min(∞, 5 + 7) = 12
+  J→D: J→E→D = min(∞, 14 + 3) = 17
+  J→H: J→E→H = min(∞, 14 + 6) = 20
+  J→L: J→E→L = min(20, 14 + 5) = 19
+  K→A: K→E→A = min(∞, -1 + 6) = 5
+  K→B: K→E→B = min(∞, -1 + 1) = 0
+  K→C: K→E→C = min(∞, -1 + 4) = 3
+  K→D: K→E→D = min(∞, -1 + 3) = 2
+  K→J: K→E→J = min(∞, -1 + 11) = 10
+  K→L: K→E→L = min(∞, -1 + 5) = 4
+  K→P: K→E→P = min(∞, -1 + 7) = 6
+  L→A: L→E→A = min(15, 5 + 6) = 11
+  L→B: L→E→B = min(10, 5 + 1) = 6
+  L→D: L→E→D = min(∞, 5 + 3) = 8
+  L→H: L→E→H = min(∞, 5 + 6) = 11
+  L→J: L→E→J = min(20, 5 + 11) = 16
+  L→P: L→E→P = min(∞, 5 + 7) = 12
+  P→A: P→E→A = min(∞, 7 + 6) = 13
+  P→B: P→E→B = min(∞, 7 + 1) = 8
+  P→C: P→E→C = min(∞, 7 + 4) = 11
+  P→D: P→E→D = min(∞, 7 + 3) = 10
+  P→H: P→E→H = min(∞, 7 + 6) = 13
+  P→L: P→E→L = min(∞, 7 + 5) = 12
+
+k = 6 (nodo intermedio H): 27 cambio(s)
+  A→K: A→H→K = min(∞, 15 + 2) = 17
+  A→M: A→H→M = min(∞, 15 + 3) = 18
+  B→K: B→H→K = min(∞, 10 + 2) = 12
+  B→M: B→H→M = min(∞, 10 + 3) = 13
+  C→K: C→H→K = min(∞, 13 + 2) = 15
+  C→M: C→H→M = min(∞, 13 + 3) = 16
+  D→K: D→H→K = min(∞, 3 + 2) = 5
+  D→M: D→H→M = min(∞, 3 + 3) = 6
+  E→K: E→H→K = min(∞, 6 + 2) = 8
+  E→M: E→H→M = min(∞, 6 + 3) = 9
+  I→K: I→H→K = min(∞, 11 + 2) = 13
+  I→M: I→H→M = min(∞, 11 + 3) = 14
+  J→K: J→H→K = min(∞, 20 + 2) = 22
+  J→M: J→H→M = min(∞, 20 + 3) = 23
+  K→M: K→H→M = min(∞, 2 + 3) = 5
+  L→M: L→H→M = min(∞, 11 + 3) = 14
+  M→A: M→H→A = min(∞, 3 + 6) = 9
+  M→B: M→H→B = min(∞, 3 + 1) = 4
+  M→C: M→H→C = min(∞, 3 + 4) = 7
+  M→D: M→H→D = min(∞, 3 + 3) = 6
+  M→E: M→H→E = min(∞, 3 + 5) = 8
+  M→J: M→H→J = min(∞, 3 + 11) = 14
+  M→K: M→H→K = min(∞, 3 + 2) = 5
+  M→L: M→H→L = min(∞, 3 + 10) = 13
+  M→P: M→H→P = min(∞, 3 + 12) = 15
+  P→K: P→H→K = min(∞, 13 + 2) = 15
+  P→M: P→H→M = min(∞, 13 + 3) = 16
+
+k = 7 (nodo intermedio I): 19 cambio(s)
+  J→B: J→I→B = min(10, 2 + 1) = 3
+  J→C: J→I→C = min(13, 2 + -2) = 0
+  J→D: J→I→D = min(17, 2 + 8) = 10
+  J→E: J→I→E = min(14, 2 + 5) = 7
+  J→H: J→I→H = min(20, 2 + 11) = 13
+  J→K: J→I→K = min(22, 2 + 13) = 15
+  J→L: J→I→L = min(19, 2 + 5) = 7
+  J→M: J→I→M = min(23, 2 + 14) = 16
+  J→O: J→I→O = min(∞, 2 + 6) = 8
+  O→A: O→I→A = min(∞, 6 + 6) = 12
+  O→B: O→I→B = min(∞, 6 + 1) = 7
+  O→C: O→I→C = min(∞, 6 + -2) = 4
+  O→D: O→I→D = min(∞, 6 + 8) = 14
+  O→E: O→I→E = min(∞, 6 + 5) = 11
+  O→H: O→I→H = min(∞, 6 + 11) = 17
+  O→J: O→I→J = min(∞, 6 + 2) = 8
+  O→L: O→I→L = min(∞, 6 + 5) = 11
+  O→M: O→I→M = min(∞, 6 + 14) = 20
+  O→P: O→I→P = min(∞, 6 + 12) = 18
+
+k = 8 (nodo intermedio J): 25 cambio(s)
+  A→C: A→J→C = min(8, 5 + 0) = 5
+  A→I: A→J→I = min(∞, 5 + 2) = 7
+  A→L: A→J→L = min(14, 5 + 7) = 12
+  A→O: A→J→O = min(∞, 5 + 8) = 13
+  A→P: A→J→P = min(16, 5 + 6) = 11
+  B→I: B→J→I = min(∞, 10 + 2) = 12
+  B→O: B→J→O = min(∞, 10 + 8) = 18
+  C→I: C→J→I = min(∞, 13 + 2) = 15
+  C→O: C→J→O = min(∞, 13 + 8) = 21
+  D→I: D→J→I = min(∞, 8 + 2) = 10
+  D→O: D→J→O = min(∞, 8 + 8) = 16
+  E→I: E→J→I = min(∞, 11 + 2) = 13
+  E→O: E→J→O = min(∞, 11 + 8) = 19
+  H→I: H→J→I = min(∞, 11 + 2) = 13
+  H→O: H→J→O = min(∞, 11 + 8) = 19
+  I→P: I→J→P = min(12, 2 + 6) = 8
+  K→I: K→J→I = min(∞, 10 + 2) = 12
+  L→I: L→J→I = min(∞, 16 + 2) = 18
+  L→O: L→J→O = min(∞, 16 + 8) = 24
+  M→I: M→J→I = min(∞, 14 + 2) = 16
+  M→O: M→J→O = min(∞, 14 + 8) = 22
+  O→P: O→J→P = min(18, 8 + 6) = 14
+  P→A: P→J→A = min(13, 6 + 5) = 11
+  P→C: P→J→C = min(11, 6 + 0) = 6
+  P→I: P→J→I = min(∞, 6 + 2) = 8
+
+k = 9 (nodo intermedio K): 31 cambio(s)
+  B→O: B→K→O = min(18, 12 + 3) = 15
+  C→O: C→K→O = min(21, 15 + 3) = 18
+  D→O: D→K→O = min(16, 5 + 3) = 8
+  E→O: E→K→O = min(19, 8 + 3) = 11
+  H→E: H→K→E = min(5, 2 + -1) = 1
+  H→L: H→K→L = min(10, 2 + 4) = 6
+  H→O: H→K→O = min(19, 2 + 3) = 5
+  H→P: H→K→P = min(12, 2 + 6) = 8
+  L→A: L→K→A = min(11, -2 + 5) = 3
+  L→B: L→K→B = min(6, -2 + 0) = -2
+  L→C: L→K→C = min(7, -2 + 3) = 1
+  L→D: L→K→D = min(8, -2 + 2) = 0
+  L→E: L→K→E = min(5, -2 + -1) = -3
+  L→H: L→K→H = min(11, -2 + 2) = 0
+  L→I: L→K→I = min(18, -2 + 12) = 10
+  L→J: L→K→J = min(16, -2 + 10) = 8
+  L→M: L→K→M = min(14, -2 + 5) = 3
+  L→O: L→K→O = min(24, -2 + 3) = 1
+  L→P: L→K→P = min(12, -2 + 6) = 4
+  M→E: M→K→E = min(8, 5 + -1) = 4
+  M→L: M→K→L = min(13, 5 + 4) = 9
+  M→O: M→K→O = min(22, 5 + 3) = 8
+  M→P: M→K→P = min(15, 5 + 6) = 11
+  O→A: O→K→A = min(12, 3 + 5) = 8
+  O→B: O→K→B = min(7, 3 + 0) = 3
+  O→D: O→K→D = min(14, 3 + 2) = 5
+  O→E: O→K→E = min(11, 3 + -1) = 2
+  O→H: O→K→H = min(17, 3 + 2) = 5
+  O→L: O→K→L = min(11, 3 + 4) = 7
+  O→M: O→K→M = min(20, 3 + 5) = 8
+  O→P: O→K→P = min(14, 3 + 6) = 9
+
+k = 10 (nodo intermedio L): 31 cambio(s)
+  A→H: A→L→H = min(15, 12 + 0) = 12
+  A→K: A→L→K = min(17, 12 + -2) = 10
+  A→M: A→L→M = min(18, 12 + 3) = 15
+  B→H: B→L→H = min(10, 9 + 0) = 9
+  B→K: B→L→K = min(12, 9 + -2) = 7
+  B→M: B→L→M = min(13, 9 + 3) = 12
+  B→O: B→L→O = min(15, 9 + 1) = 10
+  C→D: C→L→D = min(10, 7 + 0) = 7
+  C→E: C→L→E = min(7, 7 + -3) = 4
+  C→H: C→L→H = min(13, 7 + 0) = 7
+  C→K: C→L→K = min(15, 7 + -2) = 5
+  C→M: C→L→M = min(16, 7 + 3) = 10
+  C→O: C→L→O = min(18, 7 + 1) = 8
+  C→P: C→L→P = min(14, 7 + 4) = 11
+  E→H: E→L→H = min(6, 5 + 0) = 5
+  E→K: E→L→K = min(8, 5 + -2) = 3
+  E→M: E→L→M = min(9, 5 + 3) = 8
+  E→O: E→L→O = min(11, 5 + 1) = 6
+  I→D: I→L→D = min(8, 5 + 0) = 5
+  I→E: I→L→E = min(5, 5 + -3) = 2
+  I→H: I→L→H = min(11, 5 + 0) = 5
+  I→K: I→L→K = min(13, 5 + -2) = 3
+  I→M: I→L→M = min(14, 5 + 3) = 8
+  J→D: J→L→D = min(10, 7 + 0) = 7
+  J→E: J→L→E = min(7, 7 + -3) = 4
+  J→H: J→L→H = min(13, 7 + 0) = 7
+  J→K: J→L→K = min(15, 7 + -2) = 5
+  J→M: J→L→M = min(16, 7 + 3) = 10
+  P→H: P→L→H = min(13, 12 + 0) = 12
+  P→K: P→L→K = min(15, 12 + -2) = 10
+  P→M: P→L→M = min(16, 12 + 3) = 15
+
+k = 11 (nodo intermedio M): 0 cambio(s)
+
+k = 12 (nodo intermedio O): 17 cambio(s)
+  C→I: C→O→I = min(15, 8 + 6) = 14
+  E→I: E→O→I = min(13, 6 + 6) = 12
+  H→I: H→O→I = min(13, 5 + 6) = 11
+  K→I: K→O→I = min(12, 3 + 6) = 9
+  L→I: L→O→I = min(10, 1 + 6) = 7
+  M→I: M→O→I = min(16, 8 + 6) = 14
+  P→A: P→O→A = min(11, -3 + 8) = 5
+  P→B: P→O→B = min(8, -3 + 3) = 0
+  P→C: P→O→C = min(6, -3 + 4) = 1
+  P→D: P→O→D = min(10, -3 + 5) = 2
+  P→E: P→O→E = min(7, -3 + 2) = -1
+  P→H: P→O→H = min(12, -3 + 5) = 2
+  P→I: P→O→I = min(8, -3 + 6) = 3
+  P→J: P→O→J = min(6, -3 + 8) = 5
+  P→K: P→O→K = min(10, -3 + 3) = 0
+  P→L: P→O→L = min(12, -3 + 7) = 4
+  P→M: P→O→M = min(15, -3 + 8) = 5
+
+k = 13 (nodo intermedio P): 7 cambio(s)
+  A→O: A→P→O = min(13, 11 + -3) = 8
+  B→O: B→P→O = min(10, 11 + -3) = 8
+  D→O: D→P→O = min(8, 9 + -3) = 6
+  E→I: E→P→I = min(12, 7 + 3) = 10
+  E→O: E→P→O = min(6, 7 + -3) = 4
+  I→O: I→P→O = min(6, 8 + -3) = 5
+  J→O: J→P→O = min(8, 6 + -3) = 3
+
+========================================================================
+1. Distancia y camino mínimo de M a J
+========================================================================
+Reconstrucción hacia atrás con la matriz P:
+  P[M][J] = A
+  P[M][A] = B
+  P[M][B] = D
+  P[M][D] = H
+  P[M][H] = M
+
+Camino:    M → H → D → B → A → J
+Tramos:    M→H (3) + H→D (3) + D→B (-2) + B→A (5) + A→J (5)
+Distancia: 14
+
+========================================================================
+2. Distancia y camino mínimo de O a P
+========================================================================
+Reconstrucción hacia atrás con la matriz P:
+  P[O][P] = E
+  P[O][E] = K
+  P[O][K] = O
+
+Camino:    O → K → E → P
+Tramos:    O→K (3) + K→E (-1) + E→P (7)
+Distancia: 9
+
+========================================================================
+3. Distancia y camino mínimo de C a K
+========================================================================
+Reconstrucción hacia atrás con la matriz P:
+  P[C][K] = L
+  P[C][L] = C
+
+Camino:    C → L → K
+Tramos:    C→L (7) + L→K (-2)
+Distancia: 5
+
+========================================================================
+4. Matriz final de distancias D
+========================================================================
+       A   B   C   D   E   H   I   J   K   L   M   O   P
+   A   0   5   5  12   9  12   7   5  10  12  15   8  11
+   B   5   0   3   7   4   9  12  10   7   9  12   8  11
+   C   8   3   0   7   4   7  14  13   5   7  10   8  11
+   D   3  -2   1   0   2   3  10   8   5   7   6   6   9
+   E   6   1   4   3   0   5  10  11   3   5   8   4   7
+   H   6   1   4   3   1   0  11  11   2   6   3   5   8
+   I   6   1  -2   5   2   5   0   2   3   5   8   5   8
+   J   5   3   0   7   4   7   2   0   5   7  10   3   6
+   K   5   0   3   2  -1   2   9  10   0   4   5   3   6
+   L   3  -2   1   0  -3   0   7   8  -2   0   3   1   4
+   M   9   4   7   6   4   3  14  14   5   9   0   8  11
+   O   8   3   4   5   2   5   6   8   3   7   8   0   9
+   P   5   0   1   2  -1   2   3   5   0   4   5  -3   0
+
+========================================================================
+5. Matriz de reconstrucción de caminos P (predecesores)
+========================================================================
+P[i][j] = vértice anterior a j en el camino mínimo de i a j  (- = no hay / i = j)
+       A   B   C   D   E   H   I   J   K   L   M   O   P
+   A   -   A   I   E   B   K   J   A   L   C   H   P   J
+   B   B   -   B   E   B   K   J   A   L   E   H   P   E
+   C   B   C   -   E   K   K   O   A   L   C   H   K   E
+   D   B   D   B   -   B   D   J   A   H   E   H   P   E
+   E   B   D   B   E   -   K   O   A   L   E   H   P   E
+   H   B   D   B   H   K   -   O   A   H   E   H   K   E
+   I   B   C   I   E   K   K   -   I   L   C   H   P   J
+   J   J   C   I   E   K   K   J   -   L   C   H   P   J
+   K   B   D   B   E   K   K   O   A   -   E   H   K   E
+   L   B   D   B   E   K   K   O   A   L   -   H   K   E
+   M   B   D   B   H   K   M   O   A   H   E   -   K   E
+   O   B   D   I   E   K   K   O   I   O   E   H   -   E
+   P   B   D   I   E   K   K   O   I   O   E   H   P   -
+
+========================================================================
+6. Verificación de ciclos negativos (diagonal de D)
+========================================================================
+Diagonal: D[A][A]=0  D[B][B]=0  D[C][C]=0  D[D][D]=0  D[E][E]=0  D[H][H]=0  D[I][I]=0  D[J][J]=0  D[K][K]=0  D[L][L]=0  D[M][M]=0  D[O][O]=0  D[P][P]=0
+
+Todos los D[i][i] = 0 → NO existe ningún ciclo negativo.
+Las distancias calculadas son válidas, aunque haya arcos con peso negativo.

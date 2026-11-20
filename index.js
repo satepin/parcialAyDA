@@ -7,7 +7,7 @@ const readline = require('readline/promises');
 // que exporta main().
 const EJERCICIOS = [
   { nombre: 'Corrector ortográfico (distancia de Levenshtein)', modulo: './ejercicio1/corrector' },
-  // { nombre: '...', modulo: './ejercicio2/...' },
+  { nombre: 'Caminos mínimos (Floyd-Warshall)', modulo: './ejercicio2/caminos' },
   // { nombre: '...', modulo: './ejercicio3/...' },
   // { nombre: '...', modulo: './ejercicio4/...' },
 ];
